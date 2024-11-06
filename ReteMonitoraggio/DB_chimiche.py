@@ -1,4 +1,7 @@
+'''
+CODE TO MERGE 'ANAGRAFICA' AND 'IDROCHIMICA' PER ID_PUNTO
 
+'''
 # %%
 # Load necessary packages and files
 import pandas as pd
@@ -13,7 +16,7 @@ anagrafica_df = pd.read_excel(os.path.join(in_dir, 'AnagaraficheAggregate_tutti_
 
 # %%
 # Merge the DataFrames on the 'ID' column
-selected_anagrafica = anagrafica_df[['ID_PUNTO', 'Xn', 'Yn','CLASSIFICAZIONE_POLITECNICO','CLASSIFICAZIONE_EUPOLIS']] 
+selected_anagrafica = anagrafica_df[['ID_PUNTO', 'Xn', 'Yn','CLASSIFICAZIONE_POLITECNICO','CLASSIFICAZIONE_EUPOLIS']] #Get only these columns from the anagrafica
 merged_df = pd.merge(chimiche_df, selected_anagrafica, on='ID_PUNTO', how='left')
 
 # Display the first few rows of the merged DataFrame
