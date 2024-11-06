@@ -6,8 +6,8 @@ import os
 
 # Load the Excel files
 in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/PerConfronto' 
-chimiche_df = pd.read_excel(os.path.join(in_dir,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name='MEDIA_2015-2018')
-# chimiche_df = pd.read_excel(os.path.join(in_dir,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name='MEDIA_2019-2023')
+#chimiche_df = pd.read_excel(os.path.join(in_dir,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name='MEDIA_2015-2018')
+chimiche_df = pd.read_excel(os.path.join(in_dir,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name='MEDIA_2019-2023')
 
 anagrafica_df = pd.read_excel(os.path.join(in_dir, 'AnagaraficheAggregate_tutti_SL_291024.xlsx'))
 
@@ -21,5 +21,5 @@ print(merged_df.head())
 
 # %%
 # Save the merged DataFrame to a new Excel file (optional)
-merged_df.to_excel(os.path.join(in_dir,'Merged_Data.xlsx'), index=False)
+merged_df.to_excel(os.path.join(in_dir,'Merged_2019-2023.xlsx'), index=False)
 # %%
