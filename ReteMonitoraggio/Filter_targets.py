@@ -7,8 +7,10 @@ import csv
 import os
 # Input and output file paths
 in_dir = "C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/Target_concentrazione_modello/"
-input_csv = os.path.join(in_dir,"PCE_import.csv")
-output_csv = os.path.join(in_dir,"PCE_filtered_30.csv")
+input_csv = os.path.join(in_dir,"Cr6_import.csv")
+output_csv = os.path.join(in_dir,"Cr6_filtered_20.csv")
+n_set = 20
+
 # %%
 # Open the input file for reading and the output file for writing
 with open(input_csv, mode='r') as infile, open(output_csv, mode='w', newline='') as outfile:
@@ -30,8 +32,8 @@ with open(input_csv, mode='r') as infile, open(output_csv, mode='w', newline='')
             # Extract 'npoints' (number of time-series records) as an integer
             npoints = int(header[5].strip())  # 'npoints' is the 6th column
 
-            # Skip this observation point if it has fewer than 10 records
-            if npoints < 30:
+            # Skip this observation point if it has fewer than n_set records
+            if npoints < n_set:
                 # Skip the next 'npoints' rows (time-series records)
                 for _ in range(npoints):
                     next(reader)
@@ -70,4 +72,21 @@ with open(output_csv, mode='r') as outfile:
 
 print(f"Total number of observation points in the output file: {point_count}")
 # %%
-#
+from collections import Counter
+
+# Open the filtered output CSV file to count points per layer
+with open(output_csv, mode='r') as outfile:
+    reader = csv.reader(outfile)
+    
+    # Skip the header row
+    next(reader)
+    
+    # Count occurrences of each layer
+    layers = [row[4] for row in reader]  # Assuming 'layer' is the 5th column (index 4)
+    layer_counts = Counter(layers)
+
+# Print the count of observation points per layer
+print("Observation points per layer:")
+for layer, count in layer_counts.items():
+    print(f"Layer {layer}: {count} points")
+# %%
