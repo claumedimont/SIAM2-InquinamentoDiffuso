@@ -11,21 +11,28 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+from datetime import datetime, timedelta
 
 # Define the paths to your model files
 in_dir = "e:/SIAM2-InquinamentoDiffuso/Input_flopy/"
-model_ws = os.path.join(in_dir, "TCE/")
-ucn_file = f"{model_ws}/tce_tmr_20231_barri.UCN"
-obs_file = os.path.join(in_dir, "TCE/targets/per_confronto.csv")
+model_ws = os.path.join(in_dir, "PCE_NE/")
+ucn_file = f"{model_ws}/pce_tmr_ne1_barri.UCN"
+obs_file = os.path.join(in_dir, "PCE_NE/targets/per_confronto.csv")
 
 # %%
 # Load the MT3D model and UCN file
-mt_model = flopy.mt3d.Mt3dms.load("tce_tmr_2023.nam", model_ws=model_ws, verbose=True)
+mt_model = flopy.mt3d.Mt3dms.load("pce_tmr_ne.nam", model_ws=model_ws, verbose=True)
 ucn_obj = flopy.utils.UcnFile(ucn_file)
 
 # %%
 # Extract simulated concentration data from the UCN file
 times = ucn_obj.get_times()  # Get all time steps from the UCN file
+
+# Define the simulation start date
+start_date = datetime.strptime("2014-01-01", "%Y-%m-%d")
+# Convert simulation times to actual dates
+dates = [start_date + timedelta(days=int(t)) for t in times]
+
 # Load the observed data from the CSV file
 obs_df = pd.read_csv(obs_file)
 
@@ -42,6 +49,7 @@ for target_id in obs_df['id'].unique():
 
     # Extract the observed concentrations for this target
     observed_concs = target_data['observed_conc'].values  # Assumes column is named 'observed_conc'
+    observed_dates = [start_date + timedelta(days=int(t)) for t in target_data['time'].values]
 
     # Extract the simulated concentrations for this target location over all time steps
     simulated_concs = []
@@ -51,17 +59,17 @@ for target_id in obs_df['id'].unique():
 
     # Create a plot for this target showing observed vs simulated concentrations over time
     plt.figure(figsize=(10, 6))
-    plt.plot(target_data['time'], observed_concs, 'bo-', label="Observed Concentration")
-    plt.plot(times, simulated_concs, 'r^-', label="Simulated Concentration")
-    plt.xlabel("Time")  # Adjust the x-axis label if necessary
-    plt.ylabel("Concentration (ug/L)")
-    plt.title(f"Observed vs Simulated PCE Concentrations for Target {target_id}")
+    plt.plot(observed_dates, observed_concs, 'bo-', label="Dati osservati")
+    plt.plot(dates, simulated_concs, 'r^-', label="Dat simulati")
+    plt.xlabel("Anno") 
+    plt.ylabel("Concentrazione (ug/L)")
+    plt.title(f"Confronto PCE - Target {target_id}")
     plt.legend()
     plt.grid(True)
-    plt.xticks(rotation=45)  # Rotate x-axis labels if needed
+    plt.xticks(rotation=45)
     plt.tight_layout()
 
     # Save or show the plot
-    plt.savefig(os.path.join(in_dir, "TCE", "confronto", f"target_{target_id}.png"))  # Save plot as image
+    plt.savefig(os.path.join(in_dir, "PCE_NE", "confronto", f"target_{target_id}.png"))  # Save plot as image
    
 # %%
