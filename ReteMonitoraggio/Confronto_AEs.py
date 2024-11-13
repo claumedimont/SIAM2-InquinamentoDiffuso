@@ -14,13 +14,13 @@ import numpy as np
 
 # Define the paths to your model files
 in_dir = "e:/SIAM2-InquinamentoDiffuso/Input_flopy/"
-model_ws = os.path.join(in_dir, "PCE_W/")
-ucn_file = f"{model_ws}/pce_tmr_w1_barri.UCN"
-obs_file = os.path.join(in_dir, "PCE_W/targets/per_confronto.csv")
+model_ws = os.path.join(in_dir, "TCE/")
+ucn_file = f"{model_ws}/tce_tmr_20231_barri.UCN"
+obs_file = os.path.join(in_dir, "TCE/targets/per_confronto.csv")
 
 # %%
 # Load the MT3D model and UCN file
-mt_model = flopy.mt3d.Mt3dms.load("pce_tmr_w.nam", model_ws=model_ws, verbose=True)
+mt_model = flopy.mt3d.Mt3dms.load("tce_tmr_2023.nam", model_ws=model_ws, verbose=True)
 ucn_obj = flopy.utils.UcnFile(ucn_file)
 
 # %%
@@ -62,6 +62,6 @@ for target_id in obs_df['id'].unique():
     plt.tight_layout()
 
     # Save or show the plot
-    plt.savefig(os.path.join(in_dir, "PCE_W", "confronto", f"target_{target_id}.png"))  # Save plot as image
+    plt.savefig(os.path.join(in_dir, "TCE", "confronto", f"target_{target_id}.png"))  # Save plot as image
    
 # %%
