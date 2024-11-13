@@ -26,6 +26,7 @@ ucn_obj = flopy.utils.UcnFile(ucn_file)
 # %%
 # Extract simulated concentration data from the UCN file
 times = ucn_obj.get_times()  # Get all time steps from the UCN file
+
 # Load the observed data from the CSV file
 obs_df = pd.read_csv(obs_file)
 
@@ -45,41 +46,38 @@ for target_id in obs_df['id'].unique():
     col = int(target_data.iloc[0]['col'])
     lay = int(target_data.iloc[0]['layer'])
 
-    # Loop through each time step in the observed data
-    for _, record in target_data.iterrows():
-        time = record['time']
-        obs_conc = record['observed_conc']
+    # Extract the observed concentrations for this target
+    observed_concs = target_data['observed_conc'].values  # Assumes column is named 'observed_conc'
 
-        # Find the closest matching time step in the UCN file
-        closest_time = min(times, key=lambda x: abs(x - time))
+    # Extract the simulated concentrations for this target location over all time steps
+    simulated_concs = []
+    for time in times:
+        sim_conc = ucn_obj.get_data(totim=time)[lay, row, col]
+        simulated_concs.append(sim_conc)
 
-        # Get the simulated concentration at the specified location and time step
-        sim_conc = ucn_obj.get_data(totim=closest_time)[lay, row, col]
+    # Create a plot for this target showing observed vs simulated concentrations over time
+    plt.figure(figsize=(10, 6))
+    plt.plot(target_data['time'], observed_concs, 'bo-', label="Observed Concentration")
+    plt.plot(times, simulated_concs, 'r^-', label="Simulated Concentration")
+    plt.xlabel("Time (years)")  # Adjust the x-axis label if necessary
+    plt.ylabel("Concentration (ug/L)")
+    plt.title(f"Observed vs Simulated PCE Concentrations for Target {target_id}")
+    plt.legend()
+    plt.grid(True)
+    plt.xticks(rotation=45)  # Rotate x-axis labels if needed
+    plt.tight_layout()
 
-        # Store the observed and simulated concentrations
-        observed.append(obs_conc)
-        simulated.append(sim_conc)
-        target_ids.append(target_id)
+    # Save or show the plot
+    plt.savefig(os.path.join(in_dir, "PCE", "confronto", f"target_{target_id}.png"))  # Save plot as image
+   
+#     # Store the observed and simulated concentrations
+#     observed.append(observed_concs)
+#     simulated.append(sim_conc)
+#     target_ids.append(target_id)
 
-# Create a DataFrame for easy plotting and analysis
-df_results = pd.DataFrame({
-    "Target_ID": target_ids,
-    "Observed_Conc": observed,
-    "Simulated_Conc": simulated
-})
-
-# %%
-plt.figure(figsize=(10, 6))
-plt.scatter(observed, simulated, color='blue', edgecolor='k', alpha=0.7)
-plt.plot([min(observed), max(observed)], [min(observed), max(observed)], 'r--', label='1:1 Line')
-plt.xlabel("Observed Concentration (ug/L)")
-plt.ylabel("Simulated Concentration (ug/L)")
-plt.title("Observed vs Simulated PCE Concentrations")
-plt.legend()
-plt.grid()
-plt.show()
-
-# %%
-#Save results dataframe?
-df_results.to_excel(os.path.join(in_dir, "results.xlsx"))
-# %%
+# # Create a DataFrame for easy plotting and analysis
+# df_results = pd.DataFrame({
+#     "Target_ID": target_ids,
+#     "Observed_Conc": observed,
+#     "Simulated_Conc": simulated
+# })
