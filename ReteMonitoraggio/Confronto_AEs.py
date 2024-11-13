@@ -70,14 +70,3 @@ for target_id in obs_df['id'].unique():
     # Save or show the plot
     plt.savefig(os.path.join(in_dir, "PCE", "confronto", f"target_{target_id}.png"))  # Save plot as image
    
-#     # Store the observed and simulated concentrations
-#     observed.append(observed_concs)
-#     simulated.append(sim_conc)
-#     target_ids.append(target_id)
-
-# # Create a DataFrame for easy plotting and analysis
-# df_results = pd.DataFrame({
-#     "Target_ID": target_ids,
-#     "Observed_Conc": observed,
-#     "Simulated_Conc": simulated
-# })
