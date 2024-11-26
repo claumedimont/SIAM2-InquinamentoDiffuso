@@ -22,7 +22,7 @@ anagrafica_df['ID_PUNTO'] = anagrafica_df['ID_PUNTO'].str.strip()
 
 # %%
 # Merge the DataFrames on the 'ID' column
-selected_anagrafica = anagrafica_df[['ID_PUNTO', 'Xn', 'Yn','CLASSIFICAZIONE_POLITECNICO','CLASSIFICAZIONE_EUPOLIS']] #Get only these columns from the anagrafica
+selected_anagrafica = anagrafica_df[['ID_PUNTO', 'Xn', 'Yn','CLASSIFICAZIONE_POLITECNICO','CLASSIFICAZIONE_EUPOLIS', 'Fonte']] #Get only these columns from the anagrafica
 merged_df = pd.merge(chimiche_df, selected_anagrafica, on='ID_PUNTO', how='left')
 
 # Display the first few rows of the merged DataFrame
@@ -30,5 +30,5 @@ print(merged_df.head())
 
 # %%
 # Save the merged DataFrame to a new Excel file (optional)
-merged_df.to_excel(os.path.join(in_dir,'Mediane_anagrafica_all.xlsx'), index=False)
+merged_df.to_excel(os.path.join(in_dir,'Mediane_anagrafica_all_new.xlsx'), index=False)
 # %%
