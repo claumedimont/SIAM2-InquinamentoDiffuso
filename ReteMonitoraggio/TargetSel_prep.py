@@ -11,7 +11,7 @@ import pandas as pd
 import os
 
 # File paths
-in_dir = "e:/SIAM2-InquinamentoDiffuso/Input_flopy/TCE/targets/"
+in_dir = "e:/SIAM2-InquinamentoDiffuso/Input_flopy/TCM/targets/"
 obs_file = os.path.join(in_dir, "obs_data.xlsx")
 grid_file = os.path.join(in_dir, "grid_locations.csv")
 selected_file = os.path.join(in_dir, "selected_targets.csv")

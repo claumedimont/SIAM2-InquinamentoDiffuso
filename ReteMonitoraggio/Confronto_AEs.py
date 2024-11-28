@@ -15,13 +15,15 @@ from datetime import datetime, timedelta
 
 # Define the paths to your model files
 in_dir = "e:/SIAM2-InquinamentoDiffuso/Input_flopy/"
-model_ws = os.path.join(in_dir, "PCE_NE/")
-ucn_file = f"{model_ws}/pce_tmr_ne1_barri.UCN"
-obs_file = os.path.join(in_dir, "PCE_NE/targets/per_confronto.csv")
+model_ws = os.path.join(in_dir, "TCM/")
+ucn_file = f"{model_ws}/tmr_tcm_ext1.UCN"
+obs_file = os.path.join(in_dir, "TCM/targets/per_confronto.csv")
+modello_nam = "tmr_tcm_ext.nam"
+inquinante = "TCM"
 
 # %%
 # Load the MT3D model and UCN file
-mt_model = flopy.mt3d.Mt3dms.load("pce_tmr_ne.nam", model_ws=model_ws, verbose=True)
+mt_model = flopy.mt3d.Mt3dms.load(modello_nam, model_ws=model_ws, verbose=True)
 ucn_obj = flopy.utils.UcnFile(ucn_file)
 
 # %%
@@ -60,16 +62,16 @@ for target_id in obs_df['id'].unique():
     # Create a plot for this target showing observed vs simulated concentrations over time
     plt.figure(figsize=(10, 6))
     plt.plot(observed_dates, observed_concs, 'bo-', label="Dati osservati")
-    plt.plot(dates, simulated_concs, 'r^-', label="Dat simulati")
+    plt.plot(dates, simulated_concs, 'r^-', label="Dati simulati")
     plt.xlabel("Anno") 
     plt.ylabel("Concentrazione (ug/L)")
-    plt.title(f"Confronto PCE - Target {target_id}")
+    plt.title(f"Confronto {inquinante} - Target {target_id}")
     plt.legend()
     plt.grid(True)
     plt.xticks(rotation=45)
     plt.tight_layout()
 
     # Save or show the plot
-    plt.savefig(os.path.join(in_dir, "PCE_NE", "confronto", f"target_{target_id}.png"))  # Save plot as image
+    plt.savefig(os.path.join(in_dir, inquinante, "confronto", f"target_{target_id}.png"))  # Save plot as image
    
 # %%
