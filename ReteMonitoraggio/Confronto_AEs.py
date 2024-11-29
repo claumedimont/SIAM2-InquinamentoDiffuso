@@ -15,11 +15,11 @@ from datetime import datetime, timedelta
 
 # Define the paths to your model files
 in_dir = "e:/SIAM2-InquinamentoDiffuso/Input_flopy/"
-model_ws = os.path.join(in_dir, "TCM/")
-ucn_file = f"{model_ws}/tmr_tcm_ext1.UCN"
-obs_file = os.path.join(in_dir, "TCM/targets/per_confronto.csv")
-modello_nam = "tmr_tcm_ext.nam"
-inquinante = "TCM"
+model_ws = os.path.join(in_dir, "Cr6/")
+ucn_file = f"{model_ws}/tmr_ce_crvi_ext1.UCN"
+obs_file = os.path.join(model_ws, "targets/per_confronto.csv")
+modello_nam = "tmr_ce_crvi_ext.nam"
+inquinante = "Cr6"
 
 # %%
 # Load the MT3D model and UCN file
