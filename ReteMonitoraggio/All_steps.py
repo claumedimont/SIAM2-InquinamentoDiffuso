@@ -81,4 +81,67 @@ print(final_df.head())
 # %%
 # Save the merged DataFrame to a new Excel file
 final_df.to_excel(os.path.join(in_dir,'Merged_idrochimica.xlsx'), index=False)
+
+
+# %%
+'''
+NEW PART: GET MEDIAN VALUES FOR PERIODS 2015-2019 AND 2020-2023 PER EACH COMPONENT
+
+'''
+# Run STEP 1. first
+# 2. GET ANNUAL MEDIAN VALUES OF HYDROCHEMICAL DATA 'MEDIANA ANNUALE DATI IDROCHIMICI'
+# drop unnecesary cols
+df3 = idrochimica_df[['ID_PUNTO', 'DATA', 'VALORE_MODIFICATO', 'PARAMETRO', 'FONTE']]
+
+# create a column "YEAR"
+df3['ANNO']=df3['DATA'].dt.year
+
+# Define the periods
+period1 = range(2015, 2020)
+period2 = range(2020, 2024)
+
+# Preparing files to merge
+merged_df = merged_df.drop(['X', 'Y', 'Flag'], axis=1)
+#fixing possible sources of error during merge
+#setting as string
+merged_df['ID_PUNTO'] = merged_df['ID_PUNTO'].astype(str)
+#deleting white spaces
+merged_df['ID_PUNTO'] = merged_df['ID_PUNTO'].str.strip() 
+
+# Process the data to calculate medians for each parameter and period
+# Initialize an empty list to store results for all parameters
+parameters = df3['PARAMETRO'].unique()
+
+for param in parameters:
+    # Filter data for the current parameter
+    param_data = df3[df3['PARAMETRO'] == param]
+
+    # Calculate medians for each period
+    median_2015_2019 = param_data[param_data['ANNO'].isin(period1)] \
+        .groupby(['ID_PUNTO'], as_index=False)['VALORE_MODIFICATO'].median()
+    median_2015_2019.rename(columns={'VALORE_MODIFICATO': f'{param}_2015_2019'}, inplace=True)
+
+    median_2020_2023 = param_data[param_data['ANNO'].isin(period2)] \
+        .groupby(['ID_PUNTO'], as_index=False)['VALORE_MODIFICATO'].median()
+    median_2020_2023.rename(columns={'VALORE_MODIFICATO': f'{param}_2020_2023'}, inplace=True)
+
+    # Merge the results for both periods
+    medians = pd.merge(median_2015_2019, median_2020_2023, 
+                           on=['ID_PUNTO'], how='outer')
+
+    #fixing possible sources of error during merge
+    #setting as string
+    medians['ID_PUNTO'] = medians['ID_PUNTO'].astype(str)
+    #deleting white spaces
+    medians['ID_PUNTO'] = medians['ID_PUNTO'].str.strip()
+
+    # Merge the DataFrames on the 'ID' column
+    final_meds = pd.merge(merged_df, medians, on='ID_PUNTO', how='left')
+
+    # Save the result to a file for the current parameter
+    final_meds.to_excel(os.path.join(in_dir,f'Mediane_{param}.xlsx'), index=False)
+
+    # Print confirmation
+    print(f"Saved results for {param} to {final_meds}")
+
 # %%
