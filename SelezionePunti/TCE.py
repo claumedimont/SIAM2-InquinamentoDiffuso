@@ -19,24 +19,29 @@ import matplotlib.dates as mdates
 
 # Load the Excel files
 # Buffer files
-in_dir1 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/GIS/Confronto/Buffers/Selezione_punti/PCE/' 
-NE_L1_df = pd.read_csv(os.path.join(in_dir1,'PCE_NE_L1.csv'))
-NE_L5_df = pd.read_csv(os.path.join(in_dir1,'PCE_NE_L5.csv'))
-W_L1_df = pd.read_csv(os.path.join(in_dir1,'PCE_W_L1.csv'))
-W_L5_df = pd.read_csv(os.path.join(in_dir1,'PCE_W_L5.csv'))
-sorg_df = pd.read_csv(os.path.join(in_dir1,'PCE_sorgenti.csv'))
+in_dir1 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/GIS/Confronto/Buffers/Selezione_punti/TCE/' 
+L1_df = pd.read_csv(os.path.join(in_dir1,'TCE_L1.csv'))
+L5_df = pd.read_csv(os.path.join(in_dir1,'TCE_L5.csv'))
+NON_df = pd.read_excel(os.path.join(in_dir1,'TCE_daNONescludere.xlsx'))
+sorg_df = pd.read_csv(os.path.join(in_dir1,'TCE_sorgenti.csv'))
 
 # Monitoring data files
 in_dir2 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/' 
 in_dir3 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Dati origine/Analisi chimiche/' 
 siam_df = pd.read_excel(os.path.join(in_dir2,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name="idrochimica_tutt_step6")
-mind_df = pd.read_excel(os.path.join(in_dir3,'PCE_TCE_E_query dati_MIND_2018.xlsx'), sheet_name="PCE")
+mind_df = pd.read_excel(os.path.join(in_dir3,'PCE_TCE_E_query dati_MIND_2018.xlsx'), sheet_name="TCE")
 
 # %%
 # 1. All buffer files into a single df
-points_df = pd.concat([NE_L1_df, NE_L5_df, W_L1_df, W_L5_df, sorg_df], ignore_index=True)
+points_df = pd.concat([L1_df, L5_df, sorg_df], ignore_index=True)
 points_df = points_df.drop(['ANNO', 'MEDIANA_AN'], axis=1)
 points_df = points_df.drop_duplicates().reset_index(drop=True)
+
+# Remove points "da non escludere"
+# Ensure ID_PUNTO columns are strings, stripped of spaces, and in uppercase for consistency
+points_df["ID_PUNTO"] = points_df["ID_PUNTO"].astype(str).str.strip().str.upper()
+NON_df["ID_PUNTO"] = NON_df["ID_PUNTO"].astype(str).str.strip().str.upper()
+points_df = points_df[~points_df['ID_PUNTO'].isin(NON_df['ID_PUNTO'])]
 
 # %%
 # 2. Get the data ONLY for the points inside points_df from the monitoring data files
@@ -45,9 +50,9 @@ siam_filtered = siam_df[siam_df['ID_PUNTO'].isin(points_df['ID_PUNTO'])]
 siam_filtered = siam_filtered.drop(['COMUNE', 'PUNTO_PRELIEVO', 'Descrizione Punto',
        'Tipo di campione', 'Tipologia di analisi', 'Nota Prelievo','Nota Prelevatore', 'VALORE_ORIGINE',
        'UM', 'FONTE'],axis=1)
-siam_pce = siam_filtered[siam_filtered['PARAMETRO'] == 'PCE']
-siam_pce = siam_pce.drop(["PARAMETRO"], axis=1)
-siam_pce = siam_pce.rename(columns={'VALORE_MODIFICATO': 'VALORE'}).reset_index(drop=True)
+siam_tce = siam_filtered[siam_filtered['PARAMETRO'] == 'TCE']
+siam_tce = siam_tce.drop(["PARAMETRO"], axis=1)
+siam_tce = siam_tce.rename(columns={'VALORE_MODIFICATO': 'VALORE'}).reset_index(drop=True)
 
 # MIND data
 mind_filtered = mind_df[mind_df['CODICE_PP'].isin(points_df['ID_PUNTO']) | mind_df['codice_sif'].isin(points_df['ID_PUNTO'])]
@@ -65,13 +70,13 @@ mind_filtered = mind_filtered.rename(columns={'DataCampionamento': 'DATA',
 
 # %%
 # 3. Get unique monitoring dataset
-monit_df = pd.concat([siam_pce, mind_filtered], ignore_index=True).sort_values(["ID_PUNTO", "DATA"]).reset_index(drop=True)
+monit_df = pd.concat([siam_tce, mind_filtered], ignore_index=True).sort_values(["ID_PUNTO", "DATA"]).reset_index(drop=True)
 
 #also consider points with less than 10 measures for the areas of interes
 # Count the number of measurements per monitoring point & remove points with fewer than 10 measurements
 counts = monit_df.groupby("ID_PUNTO")["VALORE"].count().reset_index()
 counts.rename(columns={"VALORE": "N_MISURE"}, inplace=True)
-counts_sel = counts[counts["MISURE"] >= 10]
+counts_sel = counts[counts["N_MISURE"] >= 10]
 
 # Merge with points_df
 points_sel = points_df.merge(counts_sel, on="ID_PUNTO", how="inner")
@@ -86,12 +91,12 @@ def categorize_count(value):
      else:
          return ">10"
 
-points_sel["MISURE"] = points_sel["MISURE"].apply(categorize_count)
+points_sel["N_MISURE"] = points_sel["N_MISURE"].apply(categorize_count)
 
 # save files
-points_sel.to_csv(os.path.join(in_dir1, "PCE_n_misure.csv"))
-points_df.to_csv(os.path.join(in_dir1, "PCE_daEscludere.csv"))
-monit_df.to_csv(os.path.join(in_dir1, "PCE_all_data.csv"))
+points_sel.to_csv(os.path.join(in_dir1, "TCE_n_misure.csv"))
+points_df.to_csv(os.path.join(in_dir1, "TCE_daEscludere.csv"))
+monit_df.to_csv(os.path.join(in_dir1, "TCE_all_data.csv"))
 
 
 # %%
@@ -99,9 +104,7 @@ monit_df.to_csv(os.path.join(in_dir1, "PCE_all_data.csv"))
 output_folder = os.path.join(in_dir1,"Plots")
 
 # Points to plot
-selected_points = ['PO015182NRA863', 'PO015182NRA865','PO015170NR0099','PO015146NR1105',
-'151460166', '151460496','PO0152090R0482','CORREGGIO','NIEVO','151460403','151460511','151460510',
-'151460504','151460559','151460544','151460148','PO015209NR0342','151460431','0151160006GRZ']
+selected_points = []
 
 # Plot each monitoring point
 # Set Seaborn style
@@ -118,7 +121,7 @@ for point in selected_points:
 
     # Formatting the plot
     plt.xlabel("Data", fontsize=12)
-    plt.ylabel("Valore PCE", fontsize=12)
+    plt.ylabel("Valore TCE", fontsize=12)
     plt.title(f"Concentrazione vs Tempo\n{point}", fontsize=14, fontweight="bold")
 
     # Rotate x-axis labels and format dates nicely
