@@ -34,7 +34,7 @@ mind_df = pd.read_excel(os.path.join(in_dir3,'PCE_TCE_E_query dati_MIND_2018.xls
 
 # %%
 # 1. All buffer files into a single df
-points_df = pd.concat([NE_L1_df, NE_L5_df, W_L1_df, W_L5_df], ignore_index=True)
+points_df = pd.concat([NE_L1_df, NE_L5_df, W_L1_df, W_L5_df, sorg_df], ignore_index=True)
 points_df = points_df.drop(['ANNO', 'MEDIANA_AN'], axis=1)
 points_df = points_df.drop_duplicates().reset_index(drop=True)
 
@@ -70,35 +70,38 @@ monit_df = pd.concat([siam_pce, mind_filtered], ignore_index=True).sort_values([
 #also consider points with less than 10 measures for the areas of interes
 # Count the number of measurements per monitoring point & remove points with fewer than 10 measurements
 counts = monit_df.groupby("ID_PUNTO")["VALORE"].count().reset_index()
-counts.rename(columns={"VALORE": "MISURE"}, inplace=True)
-#counts = counts[counts["MISURE"] >= 10]
+counts.rename(columns={"VALORE": "N_MISURE"}, inplace=True)
+counts_sel = counts[counts["MISURE"] >= 10]
 
 # Merge with points_df
+points_sel = points_df.merge(counts_sel, on="ID_PUNTO", how="inner")
 points_df = points_df.merge(counts, on="ID_PUNTO", how="inner")
 
 # Replace counts with labels
 def categorize_count(value):
-    if value > 30:
-        return ">30"
-    elif value > 20:
-        return ">20"
-    else:
-        return ">10"
+     if value > 30:
+         return ">30"
+     elif value > 20:
+         return ">20"
+     else:
+         return ">10"
 
-points_df["MISURE"] = points_df["MISURE"].apply(categorize_count)
+points_sel["MISURE"] = points_sel["MISURE"].apply(categorize_count)
 
 # save files
+points_sel.to_csv(os.path.join(in_dir1, "PCE_n_misure.csv"))
 points_df.to_csv(os.path.join(in_dir1, "PCE_daEscludere.csv"))
-#monit_df.to_csv(os.path.join(in_dir1, "PCE_all_data.csv"))
+monit_df.to_csv(os.path.join(in_dir1, "PCE_all_data.csv"))
 
-#something wrong to get all points da escludere
 
 # %%
 # 4. Plot
-output_folder = os.path.join(in_dir2,"PerConfronto/PLOTS/PCE")
+output_folder = os.path.join(in_dir1,"Plots")
 
 # Get the points with more than 30 measurements
-selected_points = ['0151160006GRZ']
+selected_points = ['PO015182NRA863', 'PO015182NRA865','PO015170NR0099','PO015146NR1105',
+'151460166', '151460496','PO0152090R0482','CORREGGIO','NIEVO','151460403','151460511','151460510',
+'151460504','151460559','151460544','151460148','PO015209NR0342','151460431','0151160006GRZ']
 
 # Plot each monitoring point
 # Set Seaborn style
@@ -129,10 +132,10 @@ for point in selected_points:
     plt.tight_layout()
 
     # Save the plot as a PNG file
-    #filename = os.path.join(output_folder, f"{point}.png")
-    #plt.savefig(filename, dpi=300, bbox_inches="tight")  # Save with high resolution
-    #plt.close()  # Close the figure to free memory
-    plt.show()
+    filename = os.path.join(output_folder, f"{point}.png")
+    plt.savefig(filename, dpi=300, bbox_inches="tight")  # Save with high resolution
+    plt.close()  # Close the figure to free memory
+    #plt.show()
 
 print(f"Plots saved in '{output_folder}' folder.")
 # %%
