@@ -50,7 +50,7 @@ siam_filtered = siam_df[siam_df['ID_PUNTO'].isin(points_df['ID_PUNTO'])]
 siam_filtered = siam_filtered.drop(['COMUNE', 'PUNTO_PRELIEVO', 'Descrizione Punto',
        'Tipo di campione', 'Tipologia di analisi', 'Nota Prelievo','Nota Prelevatore', 'VALORE_ORIGINE',
        'UM', 'FONTE'],axis=1)
-siam_tcm = siam_filtered[siam_filtered['PARAMETRO'] == 'TCM']    # CHECK THE NAME!!
+siam_tcm = siam_filtered[siam_filtered['PARAMETRO'] == 'Cloroformio']
 siam_tcm = siam_tcm.drop(["PARAMETRO"], axis=1)
 siam_tcm = siam_tcm.rename(columns={'VALORE_MODIFICATO': 'VALORE'}).reset_index(drop=True)
 
