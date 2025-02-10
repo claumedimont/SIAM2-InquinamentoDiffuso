@@ -18,7 +18,7 @@ import os
 
 # Load the Excel files
 in_dir = 'C:/Users/HP/OneDrive - Politecnico di Milano/PhD_Claudia/Period_Regione/Elaborazioni/' 
-#agisco_df = pd.read_excel(os.path.join(in_dir,'SIAM2_EstrazioneAGISCO.xlsx'), sheet_name="Tutti_comuni_SIAM2", dtype={"ANA_civico_sito": str})
+agisco_df = pd.read_excel(os.path.join(in_dir,'SIAM2_EstrazioneAGISCO.xlsx'), sheet_name="Tutti_comuni_SIAM2", dtype={"ANA_civico_sito": str})
 sel_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_SelezioneAGISCO.xlsx'))
 tecnica_df = pd.read_excel(os.path.join(in_dir, 'tecnica_tipo_bonifica.xlsx'))
 
