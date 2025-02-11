@@ -13,7 +13,7 @@ import os
 import plotly.graph_objects as go
 
 # Load the Excel files
-in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/PhD_Claudia/Period_Regione/Elaborazioni/' 
+in_dir = 'C:/Users/HP/OneDrive - Politecnico di Milano/PhD_Claudia/Period_Regione/Elaborazioni/' 
 sel_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_SelezioneAGISCO.xlsx'), sheet_name="Tutti")
 
 # %%
@@ -132,16 +132,29 @@ for municipality in class_df['Comune'].unique():
 # %%
 # OPTION 2
 # Define color scheme
-color_map = {
+state_colors = {
     "bonificato": "#2ca02c",  
     "potenzialmente contaminato": "#ff8c00",
     "contaminato": "#e41a1c",
-    "non contaminato a seguito di adr": "#377eb8",
+    "non contaminato a seguito di adr": "#377eb8"
+}
 
-    # Subcategory colors for proper nesting
-    "NoEDMA": "#006400",  
-    "Sospeso": "#228B22",  
-    "EDMA>2022": "#90EE90"
+sub_colors = {
+    "bonificato_NoEDMA": "#006400",  
+    "bonificato_Sospeso": "#228B22",  
+    "bonificato_EDMA>2022": "#90EE90",
+
+    "potenzialmente contaminato_NoEDMA": "#8B4500",
+    "potenzialmente contaminato_Sospeso": "#FF8C00",
+    "potenzialmente contaminato_EDMA>2022": "#FFD700",
+
+    "contaminato_NoEDMA": "#8B0000",
+    "contaminato_Sospeso": "#FF6347",
+    "contaminato_EDMA>2022": "#FFB6C1",
+
+    "non contaminato a seguito di adr_NoEDMA": "#00008B",
+    "non contaminato a seguito di adr_Sospeso": "#4169E1",
+    "non contaminato a seguito di adr_EDMA>2022": "#87CEFA"
 }
 
 # Output directory
@@ -167,16 +180,16 @@ for municipality in class_df['Comune'].unique():
         for _, sub_row in subcategories.iterrows():
             subcategory_label = f"{main_category} ({sub_row['EDMA']})"
             proportion = sub_row["count"] / total_main_category * row["count"]
-            outer_segments.append((subcategory_label, proportion))
+            color_key = f"{main_category}_{sub_row['EDMA']}"  # Ensure correct shading
+            outer_segments.append((subcategory_label, proportion, sub_colors[color_key]))
 
     # Inner ring (Main categories)
     labels_inner = state_counts["ANA_classific_attuale"]
     values_inner = state_counts["count"]
-    colors_inner = [color_map[label] for label in labels_inner]
+    colors_inner = [state_colors[label] for label in labels_inner]
 
     # Outer ring (Properly nested subcategories)
-    labels_outer, values_outer = zip(*outer_segments)
-    colors_outer = [color_map[label.split(" (")[1].strip(")")] for label in labels_outer]
+    labels_outer, values_outer, colors_outer = zip(*outer_segments)
 
     # Clean labels for display
     labels_outer_clean = [label.split(" (")[1].strip(")") for label in labels_outer]
