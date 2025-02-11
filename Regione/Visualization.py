@@ -13,7 +13,7 @@ import os
 import plotly.graph_objects as go
 
 # Load the Excel files
-in_dir = 'C:/Users/HP/OneDrive - Politecnico di Milano/PhD_Claudia/Period_Regione/Elaborazioni/' 
+in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/PhD_Claudia/Period_Regione/Elaborazioni/' 
 sel_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_SelezioneAGISCO.xlsx'), sheet_name="Tutti")
 
 # %%
