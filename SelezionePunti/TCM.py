@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.dates as mdates
 
+# %%
 # Load the Excel files
 # Buffer files
 in_dir1 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/GIS/Confronto/Buffers/Selezione_punti/TCM/' 
@@ -101,10 +102,15 @@ monit_df.to_csv(os.path.join(in_dir1, "TCM_all_data.csv"))
 
 # %%
 # 4. Plot
+in_dir1 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/GIS/Confronto/Buffers/Selezione_punti/TCM/' 
+monit_df = pd.read_csv(os.path.join(in_dir1, "TCM_all_data.csv")).reset_index(drop=True)
 output_folder = os.path.join(in_dir1,"Plots")
+os.makedirs(output_folder, exist_ok=True)
+monit_df["DATA"] = pd.to_datetime(monit_df["DATA"], format="%Y-%m-%d", errors="coerce")
 
+# %%
 # Points to plot
-selected_points = []
+selected_points = ['PO0151460U0405']
 
 # Plot each monitoring point
 # Set Seaborn style
@@ -135,10 +141,10 @@ for point in selected_points:
     plt.tight_layout()
 
     # Save the plot as a PNG file
-    filename = os.path.join(output_folder, f"{point}.png")
-    plt.savefig(filename, dpi=300, bbox_inches="tight")  # Save with high resolution
-    plt.close()  # Close the figure to free memory
-    #plt.show()
+    # filename = os.path.join(output_folder, f"{point}.png")
+    # plt.savefig(filename, dpi=300, bbox_inches="tight")  # Save with high resolution
+    # plt.close()  # Close the figure to free memory
+    plt.show()
 
 print(f"Plots saved in '{output_folder}' folder.")
 # %%
