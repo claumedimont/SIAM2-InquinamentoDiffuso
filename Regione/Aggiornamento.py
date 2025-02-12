@@ -17,16 +17,42 @@ import pandas as pd
 import os
 
 # Load the Excel files
-in_dir = 'C:/Users/HP/OneDrive - Politecnico di Milano/PhD_Claudia/Period_Regione/Elaborazioni/' 
-sel_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_SelezioneAGISCO.xlsx'), sheet_name="UniTecno")
-agg_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_Siti_Agg.xlsx'), sheet_name="SITI_PROCEDIMENTO")
+in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/PhD_Claudia/Period_Regione/Elaborazioni/' 
+sel_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_Complessivo.xlsx'))
+agg_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_Siti_Agg.xlsx'), sheet_name="SITI_PRIORITARI")
 
 
 # %%
 #merge points with info about the applied remediation tecnology
-agg_merge = agg_df.merge(sel_df, on='COD_SITO', how='left')
+agg_merge = pd.merge(agg_df, sel_df, on='COD_SITO', how='left')
 agg_merge = agg_merge.drop(['Provincia', 'Comune'], axis=1)
 
 # %%
-agg_merge.to_excel(os.path.join(in_dir,"procedi_merge.xlsx"))
+agg_merge.to_excel(os.path.join(in_dir,"priori_merge.xlsx"))
+# %%
+# ultimate aggregation
+# Group by 'COD_SITO' and aggregate multiple values as lists
+aggregated_df = agg_merge.groupby('COD_SITO').agg({
+    'ANA_classific_attuale': 'first',
+    'descClassSuoli': 'first',
+    'descClassAcque': 'first',
+    'Stato': 'first',
+    'anno_ultimo_edma': 'first',
+    'Tipologia_sito': 'first',
+    'ANA_denom_sito': 'first',
+    'ANA_anno_apertura': 'first',
+    'PRAT_anno_chiusura': 'first',
+    
+    # Aggregate these as lists
+    'Matrice': lambda x: list(set(x.dropna())),  # Remove duplicates & NaN
+    'tipo_sostanza': lambda x: list(set(x.dropna())),
+    'sostanze': lambda x: list(set(x.dropna())),
+    'conc_max': lambda x: list(set(x.dropna())),
+    'TecnologieDescrizione': lambda x: list(set(x.dropna())),
+    'TipoTecnologiaDescrizione': lambda x: list(set(x.dropna())),
+    'note_tecnologia': lambda x: list(set(x.dropna()))
+}).reset_index()
+
+# %%
+aggregated_df.to_excel(os.path.join(in_dir,"priori_merge_unique.xlsx"))
 # %%
