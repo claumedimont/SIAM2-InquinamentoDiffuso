@@ -24,7 +24,7 @@ import matplotlib.dates as mdates
 # Load the Excel files
 # Buffer files
 in_dir1 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/GIS/Confronto/ReteMonitoraggio/Selezione_A_AB_B/' 
-punti_df = pd.read_csv(os.path.join(in_dir1,'TCM.csv'))
+punti_df = pd.read_csv(os.path.join(in_dir1,'Cromo.csv'))
 #L1_df = pd.read_csv(os.path.join(in_dir1,'TCM_L1.csv'))
 #L5_df = pd.read_csv(os.path.join(in_dir1,'TCM_L5.csv'))
 #NON_df = pd.read_excel(os.path.join(in_dir1,'TCM_daNONescludere.xlsx'))
@@ -34,7 +34,6 @@ punti_df = pd.read_csv(os.path.join(in_dir1,'TCM.csv'))
 in_dir2 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/' 
 in_dir3 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Dati origine/Analisi chimiche/' 
 siam_df = pd.read_excel(os.path.join(in_dir2,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name="idrochimica_tutt_step6")
-mind_df = pd.read_excel(os.path.join(in_dir3,'PCE_TCE_E_query dati_MIND_2018.xlsx'), sheet_name="TCM")
 amiiga_df = pd.read_excel(os.path.join(in_dir3, 'Progetti_vecchi/AMIIGA/DB_AMIIGA.xlsx'))
 
 # %%
@@ -51,76 +50,56 @@ points_df = punti_df.drop_duplicates().reset_index(drop=True)
 
 # %%
 # 2. Get the data ONLY for the points inside points_df from the monitoring data files
-# SIAM data
+# SIAM Data
 siam_filtered = siam_df[siam_df['ID_PUNTO'].isin(points_df['ID_PUNTO'])]
 siam_filtered = siam_filtered.drop(['COMUNE', 'PUNTO_PRELIEVO', 'Descrizione Punto',
        'Tipo di campione', 'Tipologia di analisi', 'Nota Prelievo','Nota Prelevatore', 'VALORE_ORIGINE',
-       'UM', 'FONTE'],axis=1)
-siam_tcm = siam_filtered[siam_filtered['PARAMETRO'] == 'Cloroformio']
-siam_tcm = siam_tcm.drop(["PARAMETRO"], axis=1)
-siam_tcm = siam_tcm.rename(columns={'VALORE_MODIFICATO': 'VALORE'}).reset_index(drop=True)
+       'UM', 'FONTE'], axis=1)
 
-siam_all =siam_df.drop(['COMUNE', 'PUNTO_PRELIEVO', 'Descrizione Punto',
+siam_cr = siam_filtered[(siam_filtered['PARAMETRO'] == 'Cromo totale') | (siam_filtered['PARAMETRO'] == 'Cromo VI')]
+#siam_cr = siam_cr.drop(["PARAMETRO"], axis=1)
+siam_cr = siam_cr.rename(columns={'VALORE_MODIFICATO': 'VALORE'}).reset_index(drop=True)
+
+siam_all = siam_df.drop(['COMUNE', 'PUNTO_PRELIEVO', 'Descrizione Punto',
        'Tipo di campione', 'Tipologia di analisi', 'Nota Prelievo','Nota Prelevatore', 'VALORE_ORIGINE',
-       'UM', 'FONTE'],axis=1)
-siam_all = siam_all[siam_all['PARAMETRO'] == 'Cloroformio']
-siam_all = siam_all.drop(["PARAMETRO"], axis=1)
+       'UM', 'FONTE'], axis=1)
+siam_all = siam_all[(siam_all['PARAMETRO'] == 'Cromo totale') | (siam_all['PARAMETRO'] == 'Cromo VI')]
+#siam_all = siam_all.drop(["PARAMETRO"], axis=1)
 siam_all = siam_all.rename(columns={'VALORE_MODIFICATO': 'VALORE'}).reset_index(drop=True)
 
-# MIND data
-mind_filtered = mind_df[mind_df['CODICE_PP'].isin(points_df['ID_PUNTO']) | mind_df['codice_sif'].isin(points_df['ID_PUNTO'])]
-mind_filtered['ID_PUNTO'] = np.where(
-    mind_filtered['CODICE_PP'].isin(points_df['ID_PUNTO']),
-    mind_filtered['CODICE_PP'],
-    mind_filtered['codice_sif'])
-mind_filtered = mind_filtered.drop(['CODICE_PP', 'DESCRIZIONE_PUNTO_PRELIEVO', 'PROVINCIA', 'COMUNE',
-       'ANNO', 'DataValidazione', 'Fonte', 'ID_CAMPIONE',
-       'RgaNaccettazione', 'Parametro_unificato', 'UM', 'CAS', 'Segno',
-       'VALORE_TESTO', 'codice_sif', 'ARPA_Plumes', 'X',
-       'Y', 'tipo_falda', 'class_poli'],axis=1)
-mind_filtered = mind_filtered.rename(columns={'DataCampionamento': 'DATA', 
-                                              'VALORE_NUMERICO': 'VALORE'}).reset_index(drop=True)
-
-mind_all = mind_df.drop(['CODICE_PP', 'DESCRIZIONE_PUNTO_PRELIEVO', 'PROVINCIA', 'COMUNE',
-       'ANNO', 'DataValidazione', 'Fonte', 'ID_CAMPIONE',
-       'RgaNaccettazione', 'Parametro_unificato', 'UM', 'CAS', 'Segno',
-       'VALORE_TESTO','ARPA_Plumes', 'X',
-       'Y', 'tipo_falda', 'class_poli'],axis=1)
-mind_all = mind_all.rename(columns={'DataCampionamento': 'DATA', 
-                                              'VALORE_NUMERICO': 'VALORE',
-                                              'codice_sif':'ID_PUNTO'}).reset_index(drop=True)
-
 # DB AMIIGA
-amiiga_filtered = amiiga_df[amiiga_df['CODICE_PP'].isin(points_df['ID_PUNTO']) | amiiga_df['codice_sif'].isin(points_df['ID_PUNTO'])]
+amiiga_filtered = amiiga_df[(amiiga_df['CODICE_PP'].isin(points_df['ID_PUNTO'])) | (amiiga_df['codice_sif'].isin(points_df['ID_PUNTO']))]
 amiiga_filtered['ID_PUNTO'] = np.where(
     amiiga_filtered['CODICE_PP'].isin(points_df['ID_PUNTO']),
     amiiga_filtered['CODICE_PP'],
-    amiiga_filtered['codice_sif'])
-amiiga_filtered = amiiga_filtered[amiiga_filtered['Parametro_'] == 'Triclorometano (cloroformio)']
+    amiiga_filtered['codice_sif']
+)
+
+amiiga_filtered = amiiga_filtered[(amiiga_filtered['Parametro_'] == 'Cromo (VI)') | (amiiga_filtered['Parametro_'] == 'Cromo Totale (Cr)')]
 amiiga_filtered = amiiga_filtered.drop(['CODICE_PP', 'DESCRIZION', 'PROVINCIA', 'COMUNE',
        'ANNO','DataValida', 'Fonte', 'ID_CAMPION',
-       'RgaNaccett', 'Parametro_', 'UM', 'CAS', 'Segno',
+       'RgaNaccett', 'UM', 'CAS', 'Segno',
        'VALORE_TES', 'codice_sif', 'ARPA_Plume', 'X', 'corrispond', 'macro', 
-       'Y', 'tipo_falda', 'classifica'],axis=1)
-amiiga_filtered = amiiga_filtered.rename(columns={'DataCampio': 'DATA', 
-                                              'VALORE_NUM': 'VALORE',
-                                              'codice_sif':'ID_PUNTO'}).reset_index(drop=True)
+       'Y', 'tipo_falda', 'classifica'], axis=1)
+amiiga_filtered = amiiga_filtered.rename(columns={'DataCampio': 'DATA', 'VALORE_NUM': 'VALORE',
+                                                  'codice_sif':'ID_PUNTO','Parametro_':'PARAMETRO'}).reset_index(drop=True)
 
-amiiga_all = amiiga_df[amiiga_df['Parametro_'] == 'Triclorometano (cloroformio)']
+amiiga_all = amiiga_df[(amiiga_df['Parametro_'] == 'Cromo (VI)') | (amiiga_df['Parametro_'] == 'Cromo Totale (Cr)')]
 amiiga_all = amiiga_all.drop(['CODICE_PP', 'DESCRIZION', 'PROVINCIA', 'COMUNE',
        'ANNO','DataValida', 'Fonte', 'ID_CAMPION',
-       'RgaNaccett', 'Parametro_', 'UM', 'CAS', 'Segno',
+       'RgaNaccett', 'UM', 'CAS', 'Segno',
        'VALORE_TES', 'ARPA_Plume', 'X', 'corrispond', 'macro', 
-       'Y', 'tipo_falda', 'classifica'],axis=1)
+       'Y', 'tipo_falda', 'classifica'], axis=1)
 amiiga_all = amiiga_all.rename(columns={'DataCampio': 'DATA', 
                                               'VALORE_NUM': 'VALORE',
-                                              'codice_sif':'ID_PUNTO'}).reset_index(drop=True)
+                                              'codice_sif':'ID_PUNTO',
+                                              'Parametro_':'PARAMETRO'}).reset_index(drop=True)
 
 
 # %%
 # 3. Get unique monitoring dataset
-monit_df = pd.concat([siam_tcm, mind_filtered, amiiga_filtered], ignore_index=True).sort_values(["ID_PUNTO", "DATA"]).reset_index(drop=True)
-monit_all = pd.concat([siam_all, mind_all, amiiga_all], ignore_index=True).sort_values(["ID_PUNTO", "DATA"]).reset_index(drop=True)
+monit_df = pd.concat([siam_cr, amiiga_filtered], ignore_index=True).sort_values(["ID_PUNTO", "DATA"]).reset_index(drop=True)
+monit_all = pd.concat([siam_all, amiiga_all], ignore_index=True).sort_values(["ID_PUNTO", "DATA"]).reset_index(drop=True)
 #also consider points with less than 10 measures for the areas of interes
 # Count the number of measurements per monitoring point & remove points with fewer than 10 measurements
 counts = monit_df.groupby("ID_PUNTO")["VALORE"].count().reset_index()
@@ -142,11 +121,32 @@ def categorize_count(value):
 
 points_sel["N_MISURE"] = points_sel["N_MISURE"].apply(categorize_count)
 
+points_sel["PARAMETRO"] = points_sel["PARAMETRO"].replace({
+    "Cromo totale": "CrTotale",
+    "Cromo Totale (Cr)": "CrTotale",
+    "Cromo VI": "CrVI",
+    "Cromo (VI)": "CrVI"
+})
+
+monit_df["PARAMETRO"] = monit_df["PARAMETRO"].replace({
+    "Cromo totale": "CrTotale",
+    "Cromo Totale (Cr)": "CrTotale",
+    "Cromo VI": "CrVI",
+    "Cromo (VI)": "CrVI"
+})
+
+monit_all["PARAMETRO"] = monit_all["PARAMETRO"].replace({
+    "Cromo totale": "CrTotale",
+    "Cromo Totale (Cr)": "CrTotale",
+    "Cromo VI": "CrVI",
+    "Cromo (VI)": "CrVI"
+})
+
 # save files
-points_sel.to_csv(os.path.join(in_dir1, "TCM_n_misure.csv"))
+points_sel.to_csv(os.path.join(in_dir1, "Cromo_n_misure.csv"))
 #points_df.to_csv(os.path.join(in_dir1, "TCM_daEscludere.csv"))
-monit_df.to_csv(os.path.join(in_dir1, "TCM_sel_data.csv"))
-monit_all.to_csv(os.path.join(in_dir1, "TCM_all_points.csv"))
+monit_df.to_csv(os.path.join(in_dir1, "Cromo_sel_data.csv"))
+monit_all.to_csv(os.path.join(in_dir1, "Cromo_all_points.csv"))
 
 # %%
 # 4. Plot
@@ -163,34 +163,37 @@ monit_df["DATA"] = pd.to_datetime(monit_df["DATA"], format="%Y-%m-%d", errors="c
 monit_all["DATA"] = pd.to_datetime(monit_all["DATA"], format="%Y-%m-%d", errors="coerce")
 
 # sel df
-data_df = monit_all
+data_df = monit_df
 
+# %%
 # Points to plot
-selected_points = ['PO015146NR0329']
+#param = 'Cromo VI'
+selected_points = ['Via Volturno - U0004']
 
 # Plot each monitoring point
 # Set Seaborn style
 sns.set_style("darkgrid")
 for point in selected_points:
-    df_point = data_df[data_df['ID_PUNTO'] == point]  # Filter data for the point
+    #df_point = data_df[(data_df['ID_PUNTO'] == point) & (data_df['PARAMETRO']== param)]  # Filter data for the point and param
+    df_point = data_df[data_df['ID_PUNTO'] == point]
     df_point = df_point.sort_values(by="DATA")  # Ensure the dates are sorted
 
     # Create figure
     plt.figure(figsize=(10, 6))
     
     # Seaborn lineplot with markers
-    sns.lineplot(data=df_point, x="DATA", y="VALORE", marker="o", color="royalblue", linewidth=2.5)
+    sns.lineplot(data=df_point, x="DATA", y="VALORE", hue="PARAMETRO", marker="o", linewidth=2.5)
 
     # Formatting the plot
     plt.xlabel("Data", fontsize=12)
-    plt.ylabel("Valore TCM", fontsize=12)
+    plt.ylabel(f"Valore Cromo ", fontsize=12)
     plt.title(f"Concentrazione vs Tempo\n{point}", fontsize=14, fontweight="bold")
 
     # Rotate x-axis labels and format dates nicely
     plt.xticks(rotation=45, fontsize=10)
     plt.yticks(fontsize=10)
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))  # Show Year-Month
-    plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=6))  # Show every 6 months
+    plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=3))  # Show every 6 months
 
     # Improve layout
     plt.grid(True, linestyle="--", alpha=0.6)  # Dotted grid
