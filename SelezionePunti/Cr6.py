@@ -150,17 +150,17 @@ monit_all.to_csv(os.path.join(in_dir1, "Cromo_all_points.csv"))
 
 # %%
 # 4. Plot
-#in_dir1 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/GIS/Confronto/Buffers/Selezione_punti/TCM/' 
-#monit_df = pd.read_csv(os.path.join(in_dir1, "TCM_all_data.csv")).reset_index(drop=True)
+in_dir1 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/GIS/Confronto/ReteMonitoraggio/Selezione_A_AB_B/'
+monit_df = pd.read_csv(os.path.join(in_dir1, "Cromo_sel_data.csv")).reset_index(drop=True)
 output_folder = os.path.join(in_dir1,"Plots")
 os.makedirs(output_folder, exist_ok=True)
 monit_df["DATA"] = pd.to_datetime(monit_df["DATA"], format="%Y-%m-%d", errors="coerce")
 
 # %%
-output_folder = os.path.join(in_dir1,"Plots")
-os.makedirs(output_folder, exist_ok=True)
-monit_df["DATA"] = pd.to_datetime(monit_df["DATA"], format="%Y-%m-%d", errors="coerce")
-monit_all["DATA"] = pd.to_datetime(monit_all["DATA"], format="%Y-%m-%d", errors="coerce")
+# output_folder = os.path.join(in_dir1,"Plots")
+# os.makedirs(output_folder, exist_ok=True)
+# monit_df["DATA"] = pd.to_datetime(monit_df["DATA"], format="%Y-%m-%d", errors="coerce")
+# monit_all["DATA"] = pd.to_datetime(monit_all["DATA"], format="%Y-%m-%d", errors="coerce")
 
 # sel df
 data_df = monit_df
@@ -168,7 +168,9 @@ data_df = monit_df
 # %%
 # Points to plot
 #param = 'Cromo VI'
-selected_points = ['Via Volturno - U0004']
+selected_points = ['PO015209NR0402']
+# check data for a monitoring point
+#monit_df.loc[monit_df['ID_PUNTO']==selected_points]
 
 # Plot each monitoring point
 # Set Seaborn style
