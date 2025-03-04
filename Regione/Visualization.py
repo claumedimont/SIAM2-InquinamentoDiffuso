@@ -47,9 +47,17 @@ for comune in comuni:
     df_comune = class_df[class_df["Comune"] == comune]
     # Define custom colors
     color_map = {
-        "potenzialmente contaminato": "#fa8065",
-        "contaminato": "#facb65"
+        "P.C.": "#facb65",
+        "C.": "#fa8065"
     }
+
+    # Replace long labels with short ones
+    df_comune = df_comune.replace({
+        "ANA_classific_attuale": {
+            "potenzialmente contaminato": "P.C.",
+            "contaminato": "C."
+        }
+    })
 
     # Create the figure
     fig = px.sunburst(df_comune, 
@@ -58,14 +66,17 @@ for comune in comuni:
         color="ANA_classific_attuale",
         color_discrete_map=color_map
         )
-    fig.update_traces(textinfo="label+value")
-    fig.show()
+    fig.update_traces(textinfo="label+value", 
+    insidetextorientation="horizontal",
+    insidetextfont=dict(family="Arial Black", size=14))
+    fig.update_layout(title_text=f"Stato EDMA siti contaminati e potenzialmente contaminati (01/2025)<br>{comune}", title_x=0.5, title_font=dict(size=15, family="Arial Black"))
+    #fig.show()
    
     # fig.update_layout(margin=dict(t=0, l=0, r=0, b=0))
     
     # # Save the figure as PNG
-    # file_path = os.path.join(save_dir, f"{comune}_donut.png")
-    # fig.write_image(file_path, engine="kaleido")
-    # print(f"Saved: {file_path}")
+    file_path = os.path.join(save_dir, f"{comune}_donut.png")
+    fig.write_image(file_path, engine="kaleido")
+    print(f"Saved: {file_path}")
           
 # %%
