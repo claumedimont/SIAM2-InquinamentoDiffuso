@@ -17,22 +17,25 @@ import pandas as pd
 import os
 
 # Load the Excel files
-in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/PhD_Claudia/Period_Regione/Elaborazioni/' 
+in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/04_REGIONE/SIAM2-AggiornamentoSitiMisure/Elaborazioni/' 
 sel_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_Complessivo.xlsx'))
-agg_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_Siti_Agg.xlsx'), sheet_name="SITI_PRIORITARI")
+agg_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_Siti_Agg.xlsx'), sheet_name="SITI_PROCEDIMENTO")
 
 
 # %%
 #merge points with info about the applied remediation tecnology
 agg_merge = pd.merge(agg_df, sel_df, on='COD_SITO', how='left')
-agg_merge = agg_merge.drop(['Provincia', 'Comune'], axis=1)
+#agg_merge = agg_merge.drop(['Provincia', 'Comune'], axis=1)
 
 # %%
-agg_merge.to_excel(os.path.join(in_dir,"priori_merge.xlsx"))
+#agg_merge.to_excel(os.path.join(in_dir,"priori_merge.xlsx"))
 # %%
 # ultimate aggregation
 # Group by 'COD_SITO' and aggregate multiple values as lists
 aggregated_df = agg_merge.groupby('COD_SITO').agg({
+    'Provincia':'first',
+    'Comune':'first',
+    'Stato_2017': 'first',
     'ANA_classific_attuale': 'first',
     'descClassSuoli': 'first',
     'descClassAcque': 'first',
@@ -54,5 +57,5 @@ aggregated_df = agg_merge.groupby('COD_SITO').agg({
 }).reset_index()
 
 # %%
-aggregated_df.to_excel(os.path.join(in_dir,"priori_merge_unique.xlsx"))
+aggregated_df.to_excel(os.path.join(in_dir,"procedi_merge_unique.xlsx"))
 # %%
