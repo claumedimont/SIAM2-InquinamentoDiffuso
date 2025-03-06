@@ -40,10 +40,10 @@ merged_df = pd.merge(df1, df2, on='id_punto_idrochimica')
 merged_df.rename(columns={'id_punto_idrochimica': 'ID_PUNTO'}, inplace=True)
 
 # Add a flag column where inconsistencies between the coordinates are found
-merged_df['Flag'] = (merged_df['X'] != merged_df['Xn']) | (merged_df['Y'] != merged_df['Yn'])
+#merged_df['Flag'] = (merged_df['X'] != merged_df['Xn']) | (merged_df['Y'] != merged_df['Yn'])
 
 # Filter only the points where there is a flag
-flagged_points = merged_df[merged_df['Flag']]
+#flagged_points = merged_df[merged_df['Flag']]
 
 # %%
 # 2. GET ANNUAL MEDIAN VALUES OF HYDROCHEMICAL DATA 'MEDIANA ANNUALE DATI IDROCHIMICI'
@@ -61,7 +61,7 @@ df3_result.rename(columns={'VALORE_MODIFICATO': 'MEDIANA_ANNO'}, inplace=True)
 # %%
 # 3. MERGE FILES
 # Preparing files to merge
-merged_df = merged_df.drop(['X', 'Y', 'Flag'], axis=1)
+merged_df = merged_df.drop(['X', 'Y'], axis=1)
 
 #fixing possible sources of error during merge
 #setting as string
@@ -97,11 +97,11 @@ df3 = idrochimica_df[['ID_PUNTO', 'DATA', 'VALORE_MODIFICATO', 'PARAMETRO', 'FON
 df3['ANNO']=df3['DATA'].dt.year
 
 # Define the periods
-period1 = range(2015, 2020)
-period2 = range(2020, 2024)
+#period1 = range(2015, 2020)
+period2 = range(2019, 2023)
 
 # Preparing files to merge
-merged_df = merged_df.drop(['X', 'Y', 'Flag'], axis=1)
+merged_df = merged_df.drop(['X', 'Y'], axis=1)
 #fixing possible sources of error during merge
 #setting as string
 merged_df['ID_PUNTO'] = merged_df['ID_PUNTO'].astype(str)
@@ -117,29 +117,29 @@ for param in parameters:
     param_data = df3[df3['PARAMETRO'] == param]
 
     # Calculate medians for each period
-    median_2015_2019 = param_data[param_data['ANNO'].isin(period1)] \
-        .groupby(['ID_PUNTO'], as_index=False)['VALORE_MODIFICATO'].median()
-    median_2015_2019.rename(columns={'VALORE_MODIFICATO': f'{param}_2015_2019'}, inplace=True)
+    #median_2015_2019 = param_data[param_data['ANNO'].isin(period1)] \
+        #.groupby(['ID_PUNTO'], as_index=False)['VALORE_MODIFICATO'].median()
+    #median_2015_2019.rename(columns={'VALORE_MODIFICATO': f'{param}_2015_2019'}, inplace=True)
 
-    median_2020_2023 = param_data[param_data['ANNO'].isin(period2)] \
+    median_2019_2023 = param_data[param_data['ANNO'].isin(period2)] \
         .groupby(['ID_PUNTO'], as_index=False)['VALORE_MODIFICATO'].median()
-    median_2020_2023.rename(columns={'VALORE_MODIFICATO': f'{param}_2020_2023'}, inplace=True)
+    median_2019_2023.rename(columns={'VALORE_MODIFICATO': f'{param}_2019_2023'}, inplace=True)
 
     # Merge the results for both periods
-    medians = pd.merge(median_2015_2019, median_2020_2023, 
-                           on=['ID_PUNTO'], how='outer')
+    #medians = pd.merge(median_2015_2019, median_2020_2023, 
+    #                       on=['ID_PUNTO'], how='outer')
 
     #fixing possible sources of error during merge
     #setting as string
-    medians['ID_PUNTO'] = medians['ID_PUNTO'].astype(str)
+    median_2019_2023['ID_PUNTO'] = median_2019_2023['ID_PUNTO'].astype(str)
     #deleting white spaces
-    medians['ID_PUNTO'] = medians['ID_PUNTO'].str.strip()
+    median_2019_2023['ID_PUNTO'] = median_2019_2023['ID_PUNTO'].str.strip()
 
     # Merge the DataFrames on the 'ID' column
-    final_meds = pd.merge(merged_df, medians, on='ID_PUNTO', how='left')
+    final_meds = pd.merge(merged_df, median_2019_2023, on='ID_PUNTO', how='left')
 
     # Save the result to a file for the current parameter
-    final_meds.to_excel(os.path.join(in_dir,f'Mediane_{param}.xlsx'), index=False)
+    final_meds.to_excel(os.path.join(in_dir,f'{param}_Mediane2019-2023.xlsx'), index=False)
 
     # Print confirmation
     print(f"Saved results for {param} to {final_meds}")
