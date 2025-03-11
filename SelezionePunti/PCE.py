@@ -20,6 +20,8 @@ import matplotlib.dates as mdates
 # Load the Excel files
 # Buffer files
 in_dir1 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/GIS/Confronto/Buffers/Selezione_punti/PCE/' 
+
+# %%
 NE_L1_df = pd.read_csv(os.path.join(in_dir1,'PCE_NE_L1.csv'))
 NE_L5_df = pd.read_csv(os.path.join(in_dir1,'PCE_NE_L5.csv'))
 W_L1_df = pd.read_csv(os.path.join(in_dir1,'PCE_W_L1.csv'))
@@ -96,12 +98,13 @@ monit_df.to_csv(os.path.join(in_dir1, "PCE_all_data.csv"))
 
 # %%
 # 4. Plot
+monit_df = pd.read_csv(os.path.join(in_dir1, "PCE_all_data.csv"))
+monit_df["DATA"] = pd.to_datetime(monit_df["DATA"], errors="coerce")
 output_folder = os.path.join(in_dir1,"Plots")
 
+# %%
 # Points to plot
-selected_points = ['PO015182NRA863', 'PO015182NRA865','PO015170NR0099','PO015146NR1105',
-'151460166', '151460496','PO0152090R0482','CORREGGIO','NIEVO','151460403','151460511','151460510',
-'151460504','151460559','151460544','151460148','PO015209NR0342','151460431','0151160006GRZ']
+selected_points = ['PO015027NRA263', 'PO015182NRA964']
 
 # Plot each monitoring point
 # Set Seaborn style
@@ -118,8 +121,9 @@ for point in selected_points:
 
     # Formatting the plot
     plt.xlabel("Data", fontsize=12)
-    plt.ylabel("Valore PCE", fontsize=12)
-    plt.title(f"Concentrazione vs Tempo\n{point}", fontsize=14, fontweight="bold")
+    plt.ylabel("Valore PCE (ug/L)", fontsize=12)
+    plt.title(f"{point}", fontsize=14, fontweight="bold")
+    plt.ylim(0, 400)
 
     # Rotate x-axis labels and format dates nicely
     plt.xticks(rotation=45, fontsize=10)
@@ -134,8 +138,9 @@ for point in selected_points:
     # Save the plot as a PNG file
     filename = os.path.join(output_folder, f"{point}.png")
     plt.savefig(filename, dpi=300, bbox_inches="tight")  # Save with high resolution
+    plt.show()
     plt.close()  # Close the figure to free memory
-    #plt.show()
+    
 
 print(f"Plots saved in '{output_folder}' folder.")
 # %%

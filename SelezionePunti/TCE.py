@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.dates as mdates
-
+# %%
 # Load the Excel files
 # Buffer files
 in_dir1 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/GIS/Confronto/Buffers/Selezione_punti/TCE/' 
@@ -109,7 +109,7 @@ monit_df["DATA"] = pd.to_datetime(monit_df["DATA"], format="%Y-%m-%d", errors="c
 
 # %%
 # Points to plot
-selected_points = []
+selected_points = ['151460397','151462838','PO015182NRA865','PO015146NR1105']
 
 # Plot each monitoring point
 # Set Seaborn style
@@ -126,8 +126,9 @@ for point in selected_points:
 
     # Formatting the plot
     plt.xlabel("Data", fontsize=12)
-    plt.ylabel("Valore TCE", fontsize=12)
-    plt.title(f"Concentrazione vs Tempo\n{point}", fontsize=14, fontweight="bold")
+    plt.ylabel("Valore TCE (ug/L)", fontsize=12)
+    plt.title(f"{point}", fontsize=14, fontweight="bold")
+    plt.ylim(0, 105)
 
     # Rotate x-axis labels and format dates nicely
     plt.xticks(rotation=45, fontsize=10)
@@ -140,9 +141,9 @@ for point in selected_points:
     plt.tight_layout()
 
     # Save the plot as a PNG file
-    # filename = os.path.join(output_folder, f"{point}.png")
-    # plt.savefig(filename, dpi=300, bbox_inches="tight")  # Save with high resolution
-    # plt.close()  # Close the figure to free memory
+    filename = os.path.join(output_folder, f"{point}.png")
+    plt.savefig(filename, dpi=300, bbox_inches="tight")  # Save with high resolution
+    plt.close()  # Close the figure to free memory
     plt.show()
 
 print(f"Plots saved in '{output_folder}' folder.")

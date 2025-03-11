@@ -162,9 +162,10 @@ monit_all["DATA"] = pd.to_datetime(monit_all["DATA"], format="%Y-%m-%d", errors=
 # %%
 # sel df
 data_df = monit_all
+data_df["VALORE"] = pd.to_numeric(data_df["VALORE"], errors="coerce")
 
 # Points to plot
-selected_points = ['PO015146NR0329']
+selected_points = ['PO015146NR1105','PO015250NR0002']
 
 # Plot each monitoring point
 # Set Seaborn style
@@ -181,8 +182,9 @@ for point in selected_points:
 
     # Formatting the plot
     plt.xlabel("Data", fontsize=12)
-    plt.ylabel("Valore TCM", fontsize=12)
-    plt.title(f"Concentrazione vs Tempo\n{point}", fontsize=14, fontweight="bold")
+    plt.ylabel("Valore TCM (ug/L)", fontsize=12)
+    plt.title(f"{point}", fontsize=14, fontweight="bold")
+    plt.ylim(0, 30)
 
     # Rotate x-axis labels and format dates nicely
     plt.xticks(rotation=45, fontsize=10)
@@ -195,9 +197,9 @@ for point in selected_points:
     plt.tight_layout()
 
     # Save the plot as a PNG file
-    # filename = os.path.join(output_folder, f"{point}.png")
-    # plt.savefig(filename, dpi=300, bbox_inches="tight")  # Save with high resolution
-    # plt.close()  # Close the figure to free memory
+    filename = os.path.join(output_folder, f"{point}.png")
+    plt.savefig(filename, dpi=300, bbox_inches="tight")  # Save with high resolution
+    plt.close()  # Close the figure to free memory
     plt.show()
 
 print(f"Plots saved in '{output_folder}' folder.")

@@ -159,16 +159,17 @@ monit_df["DATA"] = pd.to_datetime(monit_df["DATA"], format="%Y-%m-%d", errors="c
 # %%
 # output_folder = os.path.join(in_dir1,"Plots")
 # os.makedirs(output_folder, exist_ok=True)
+monit_all = pd.read_csv(os.path.join(in_dir1,"Cromo_all_points.csv")).reset_index(drop=True)
 # monit_df["DATA"] = pd.to_datetime(monit_df["DATA"], format="%Y-%m-%d", errors="coerce")
-# monit_all["DATA"] = pd.to_datetime(monit_all["DATA"], format="%Y-%m-%d", errors="coerce")
+monit_all["DATA"] = pd.to_datetime(monit_all["DATA"], format="%Y-%m-%d", errors="coerce")
 
 # sel df
-data_df = monit_df
+data_df = monit_all
 
 # %%
 # Points to plot
 #param = 'Cromo VI'
-selected_points = ['PO015209NR0402']
+selected_points = ['151460402']
 # check data for a monitoring point
 #monit_df.loc[monit_df['ID_PUNTO']==selected_points]
 
@@ -188,8 +189,9 @@ for point in selected_points:
 
     # Formatting the plot
     plt.xlabel("Data", fontsize=12)
-    plt.ylabel(f"Valore Cromo ", fontsize=12)
-    plt.title(f"Concentrazione vs Tempo\n{point}", fontsize=14, fontweight="bold")
+    plt.ylabel(f"Valore Cromo (ug/L)", fontsize=12)
+    plt.title(f"{point}", fontsize=14, fontweight="bold")
+    plt.ylim(0, 250)
 
     # Rotate x-axis labels and format dates nicely
     plt.xticks(rotation=45, fontsize=10)
@@ -202,9 +204,9 @@ for point in selected_points:
     plt.tight_layout()
 
     # Save the plot as a PNG file
-    # filename = os.path.join(output_folder, f"{point}.png")
-    # plt.savefig(filename, dpi=300, bbox_inches="tight")  # Save with high resolution
-    # plt.close()  # Close the figure to free memory
+    filename = os.path.join(output_folder, f"{point}.png")
+    plt.savefig(filename, dpi=300, bbox_inches="tight")  # Save with high resolution
+    plt.close()  # Close the figure to free memory
     plt.show()
 
 print(f"Plots saved in '{output_folder}' folder.")
