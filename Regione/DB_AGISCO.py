@@ -17,7 +17,7 @@ import pandas as pd
 import os
 
 # Directory
-in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/PhD_Claudia/Period_Regione/Elaborazioni/' 
+in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/04_REGIONE/SIAM2-AggiornamentoSitiMisure/Elaborazioni/' 
 #sel_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_SelezioneAGISCO.xlsx'), sheet_name= 'Tutti')
 
 # %%
@@ -180,4 +180,17 @@ SELinqui_df = SELinqui_df.rename(columns={'Matrice_inquinante': 'Matrice'})
 merged_df = pd.merge(SELinqui_df, SELtecno_df, on=['COD_SITO', 'Matrice'], how='left')
 #merged_df.to_excel(os.path.join(in_dir,"SIAM2_Complessivo.xlsx"))
 
+# %%
+# 5) Merge tecnologie MISE e MISP
+mise_df = pd.read_excel(os.path.join(in_dir, "Supporto/Tecniche_MISE.xlsx"))
+misp_df = pd.read_excel(os.path.join(in_dir, "Supporto/Tecniche_MISP.xlsx"))
+comp_df = pd.read_excel(os.path.join(in_dir, "DaCondividire/SIAM2_Complessivo.xlsx"))
+
+mise_df = mise_df[['COD_SITO', 'codDescrizione']].rename(columns={'codDescrizione': 'MISE_descrizione'})
+misp_df = misp_df[['COD_SITO', 'codDescrizione']].rename(columns={'codDescrizione': 'MISP_descrizione'})
+
+merged1_df = pd.merge(comp_df, mise_df, on=['COD_SITO'], how="left")
+merged2_df = pd.merge(merged1_df, misp_df, on=['COD_SITO'], how="left")
+
+#merged2_df.to_excel(os.path.join(in_dir, "SIAM2_ComplessivoNuovo.xlsx"))
 # %%

@@ -18,8 +18,8 @@ import os
 
 # Load the Excel files
 in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/04_REGIONE/SIAM2-AggiornamentoSitiMisure/Elaborazioni/' 
-sel_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_Complessivo.xlsx'))
-agg_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_Siti_Agg.xlsx'), sheet_name="SITI_PROCEDIMENTO")
+sel_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_ComplessivoNuovo.xlsx'))
+agg_df = pd.read_excel(os.path.join(in_dir, 'SIAM2_Siti_Aggiornati.xlsx'), sheet_name="SITI_PRIORITARI")
 
 
 # %%
@@ -35,7 +35,7 @@ agg_merge = pd.merge(agg_df, sel_df, on='COD_SITO', how='left')
 aggregated_df = agg_merge.groupby('COD_SITO').agg({
     'Provincia':'first',
     'Comune':'first',
-    'Stato_2017': 'first',
+    'Stato2017-2019': 'first',
     'ANA_classific_attuale': 'first',
     'descClassSuoli': 'first',
     'descClassAcque': 'first',
@@ -53,9 +53,11 @@ aggregated_df = agg_merge.groupby('COD_SITO').agg({
     'conc_max': lambda x: list(set(x.dropna())),
     'TecnologieDescrizione': lambda x: list(set(x.dropna())),
     'TipoTecnologiaDescrizione': lambda x: list(set(x.dropna())),
-    'note_tecnologia': lambda x: list(set(x.dropna()))
+    'note_tecnologia': lambda x: list(set(x.dropna())),
+    'MISE_descrizione': lambda x: list(set(x.dropna())),
+    'MISP_descrizione': lambda x: list(set(x.dropna()))
 }).reset_index()
 
 # %%
-aggregated_df.to_excel(os.path.join(in_dir,"procedi_merge_unique.xlsx"))
+aggregated_df.to_excel(os.path.join(in_dir,"priori_merge_unique.xlsx"))
 # %%
