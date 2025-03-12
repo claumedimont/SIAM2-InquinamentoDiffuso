@@ -35,6 +35,7 @@ agg_merge = pd.merge(agg_df, sel_df, on='COD_SITO', how='left')
 aggregated_df = agg_merge.groupby('COD_SITO').agg({
     'Provincia':'first',
     'Comune':'first',
+    'Area':'first',
     'Stato2017-2019': 'first',
     'ANA_classific_attuale': 'first',
     'descClassSuoli': 'first',
@@ -55,7 +56,8 @@ aggregated_df = agg_merge.groupby('COD_SITO').agg({
     'TipoTecnologiaDescrizione': lambda x: list(set(x.dropna())),
     'note_tecnologia': lambda x: list(set(x.dropna())),
     'MISE_descrizione': lambda x: list(set(x.dropna())),
-    'MISP_descrizione': lambda x: list(set(x.dropna()))
+    'MISP_descrizione': lambda x: list(set(x.dropna())),
+    'Simulato_SIAM2':'first'
 }).reset_index()
 
 # %%
