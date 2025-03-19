@@ -30,4 +30,24 @@ def_df = mediane[(mediane[f'{inq2}_2019_2023'].notna()) & (mediane[f'{inq2}_2019
 
 # %%
 def_df.to_csv(os.path.join(save_dir, f"DEF_{inq}_mediane_2019-2023.csv"))
+
+# %%
+'''
+UPDATE: ADD FONTE INFO
+'''
+
+save_dir = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/PerConfronto/ArcGIS_input/DEF/' 
+in_dir = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/PerConfronto/Input_files/' 
+info_df = pd.read_excel(os.path.join(in_dir,'Anagarafiche_aggregate_tutti_SL_100125.xlsx'))
+info_df = info_df.rename({"id_punto_idrochimica":"ID_PUNTO"}, axis=1)
+
+# %%
+inq = 'CrTOT'
+df = pd.read_csv(os.path.join(save_dir, f"DEF_{inq}_mediane_2019-2023.csv"))
+print("n records original:", df.shape)
+df_update = pd.merge(df, info_df[["ID_PUNTO", "Fonte"]], on="ID_PUNTO", how="left").reset_index(drop=True)
+print("n records update:", df_update.shape)
+
+df_update.to_csv(os.path.join(save_dir, f"ULT_{inq}_mediane_2019-2023.csv"))
+
 # %%
