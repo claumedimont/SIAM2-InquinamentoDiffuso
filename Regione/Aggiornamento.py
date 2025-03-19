@@ -25,12 +25,14 @@ proced_df = pd.read_excel(os.path.join(in_dir, 'DaCondividire/SIAM2_Siti_Aggiorn
 
 # %%
 #merge info no agregation
-cods_priori = priori_df[['COD_SITO']]
-cods_proced = proced_df[['COD_SITO']]
+cods_priori = priori_df[['COD_SITO','Stato2017-2019','Simulato_SIAM2']]
+cods_proced = proced_df[['COD_SITO', 'Stato_2017','Simulato_SIAM2', 'Note']]
 agg_merge = pd.merge(cods_priori, sel_df, on='COD_SITO', how='left')
 agg_merge["DGR_SITO"] = 'Prioritario'
+agg_merge = agg_merge.rename({'Stato2017-2019':'Stato_iniziale', 'Stato':'Stato_attuale'}, axis=1)
 agg_merge2 = pd.merge(cods_proced, sel_df, on='COD_SITO', how='left')
 agg_merge2["DGR_SITO"] = 'Procedimento'
+agg_merge2 = agg_merge2.rename({'Stato_2017':'Stato_iniziale', 'Stato':'Stato_attuale'}, axis=1)
 siti_siam = pd.concat([agg_merge, agg_merge2], ignore_index = True)
 #agg_merge = agg_merge.drop(['Provincia', 'Comune'], axis=1)
 
