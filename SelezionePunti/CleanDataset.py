@@ -51,3 +51,20 @@ print("n records update:", df_update.shape)
 df_update.to_csv(os.path.join(save_dir, f"ULT_{inq}_mediane_2019-2023.csv"))
 
 # %%
+'''
+UPDATE: ADD NUMBER OF MEASUREMENTS PER POINT 
+
+'''
+cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/PerConfronto/ArcGIS_input/DEF/'
+
+# Get number of measurements from the monitoring dataset
+inq = 'CrTOT'
+monit_df = pd.read_csv(os.path.join(cwd1, f"{inq}_dati_monitoraggio.csv"))
+mediane_df = pd.read_csv(os.path.join(cwd1, f"ULT_{inq}_mediane_2019-2023.csv"))
+
+# Count number of records per point in monitoring data
+record_counts = monit_df.groupby('ID_PUNTO').size().reset_index(name='numero_misure')
+update_df = mediane_df.merge(record_counts, on='ID_PUNTO', how='left')
+update_df.to_csv(os.path.join(cwd1, f"LAST_{inq}_mediane_2019-2023.csv"))
+
+# %%
