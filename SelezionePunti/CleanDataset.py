@@ -42,9 +42,12 @@ info_df = pd.read_excel(os.path.join(in_dir,'Anagarafiche_aggregate_tutti_SL_100
 info_df = info_df.rename({"id_punto_idrochimica":"ID_PUNTO"}, axis=1)
 
 # %%
-inq = 'CrTOT'
+inq = 'TCM'
 df = pd.read_csv(os.path.join(save_dir, f"DEF_{inq}_mediane_2019-2023.csv"))
 print("n records original:", df.shape)
+# Convert ID_PUNTO columns to string type
+info_df["ID_PUNTO"] = info_df["ID_PUNTO"].astype(str).str.strip().str.upper()
+df["ID_PUNTO"] = df["ID_PUNTO"].astype(str).str.strip().str.upper()
 df_update = pd.merge(df, info_df[["ID_PUNTO", "Fonte"]], on="ID_PUNTO", how="left").reset_index(drop=True)
 print("n records update:", df_update.shape)
 
@@ -58,9 +61,12 @@ UPDATE: ADD NUMBER OF MEASUREMENTS PER POINT
 cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/PerConfronto/ArcGIS_input/DEF/'
 
 # Get number of measurements from the monitoring dataset
-inq = 'CrTOT'
+inq = 'TCE'
 monit_df = pd.read_csv(os.path.join(cwd1, f"{inq}_dati_monitoraggio.csv"))
 mediane_df = pd.read_csv(os.path.join(cwd1, f"ULT_{inq}_mediane_2019-2023.csv"))
+
+monit_df["ID_PUNTO"] = monit_df["ID_PUNTO"].astype(str).str.strip().str.upper()
+mediane_df["ID_PUNTO"] = mediane_df["ID_PUNTO"].astype(str).str.strip().str.upper()
 
 # Count number of records per point in monitoring data
 record_counts = monit_df.groupby('ID_PUNTO').size().reset_index(name='numero_misure')

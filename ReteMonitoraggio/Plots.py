@@ -15,17 +15,21 @@ import matplotlib.ticker as mticker
 
 # Define function
 # Get the data ONLY for the points inside points_df from the monitoring data files
-def monitoring(inq, siam_df, mind_df, points_df):
+def monitoring(inq, inq2, siam_df, mind_df, points_df):
+    points_df["ID_PUNTO"] = points_df["ID_PUNTO"].astype(str).str.strip().str.upper()
     # SIAM data
+    siam_df["ID_PUNTO"] = siam_df["ID_PUNTO"].astype(str).str.strip().str.upper()
     siam_filtered = siam_df[siam_df['ID_PUNTO'].isin(points_df['ID_PUNTO'])]
     siam_filtered = siam_filtered.drop(['COMUNE', 'PUNTO_PRELIEVO', 'Descrizione Punto',
        'Tipo di campione', 'Tipologia di analisi', 'Nota Prelievo','Nota Prelevatore', 'VALORE_ORIGINE',
        'UM', 'FONTE'],axis=1)
-    siam_inq = siam_filtered[siam_filtered['PARAMETRO'] == f'{inq}']
+    siam_inq = siam_filtered[siam_filtered['PARAMETRO'] == f'{inq2}']
     siam_inq = siam_inq.drop(["PARAMETRO"], axis=1)
     siam_inq = siam_inq.rename(columns={'VALORE_MODIFICATO': 'VALORE'}).reset_index(drop=True)
 
     # MIND data
+    mind_df["CODICE_PP"] = mind_df["CODICE_PP"].astype(str).str.strip().str.upper()
+    mind_df["codice_sif"] = mind_df["codice_sif"].astype(str).str.strip().str.upper()
     mind_filtered = mind_df[mind_df['CODICE_PP'].isin(points_df['ID_PUNTO']) | mind_df['codice_sif'].isin(points_df['ID_PUNTO'])]
     mind_filtered['ID_PUNTO'] = np.where(
         mind_filtered['CODICE_PP'].isin(points_df['ID_PUNTO']),
@@ -59,20 +63,23 @@ PCE, TCE, TCM
 '''
 
 # Get a monitoring dataset per each point for which a mediana has been calculated
-inq = 'TCM'
+inq = 'TCE'
+inq2 = "TCE"
 points_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/ULT_{inq}_mediane_2019-2023.csv"))  #points
 mind_df = pd.read_excel(os.path.join(cwd2,'PCE_TCE_E_query dati_MIND_2018.xlsx'), sheet_name=f"{inq}")
 
-monit_df = monitoring(inq, siam_df, mind_df, points_df)
-monit_df.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq}_dati_monitoraggio.csv"))
+monit_df = monitoring(inq, inq2, siam_df, mind_df, points_df)
+monit_df.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq}_dati_monitoraggio.csv")) #USE THIS TO UPDATE N MISURE
 
+# update ult files!
+
+# %%
 asymptote_values = asymptotes[f"{inq}"].to_list()
 output_folder = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq}") # output folder
 
 # %%
 #Define lower significant concentration
-inq2 = "Cloroformio"
-lowest = 10
+lowest = 30
 selected_points = points_df[points_df[f"{inq2}_2019_2023"] >= lowest]["ID_PUNTO"].tolist() # Points to plot
 print (len(selected_points))
 

@@ -15,32 +15,46 @@ import matplotlib.ticker as mticker
 
 # Define function
 # Get the data ONLY for the points inside points_df from the monitoring data files
-def monitoring(inq, siam_df, mind_df, points_df):
+def monitoring(siam_df, amiiga_df, points_df):
+    points_df["ID_PUNTO"] = points_df["ID_PUNTO"].astype(str).str.strip().str.upper()
     # SIAM data
+    siam_df["ID_PUNTO"] = siam_df["ID_PUNTO"].astype(str).str.strip().str.upper()
     siam_filtered = siam_df[siam_df['ID_PUNTO'].isin(points_df['ID_PUNTO'])]
     siam_filtered = siam_filtered.drop(['COMUNE', 'PUNTO_PRELIEVO', 'Descrizione Punto',
        'Tipo di campione', 'Tipologia di analisi', 'Nota Prelievo','Nota Prelevatore', 'VALORE_ORIGINE',
        'UM', 'FONTE'],axis=1)
-    siam_inq = siam_filtered[siam_filtered['PARAMETRO'] == f'{inq}']
-    siam_inq = siam_inq.drop(["PARAMETRO"], axis=1)
-    siam_inq = siam_inq.rename(columns={'VALORE_MODIFICATO': 'VALORE'}).reset_index(drop=True)
+    siam_cr6 = siam_filtered[(siam_filtered['PARAMETRO'] == 'Cromo VI')]
+    siam_cr6 = siam_cr6.rename(columns={'VALORE_MODIFICATO': 'VALORE'}).reset_index(drop=True)
+    siam_crTOT = siam_filtered[(siam_filtered['PARAMETRO'] == 'Cromo totale')]
+    siam_crTOT = siam_crTOT.rename(columns={'VALORE_MODIFICATO': 'VALORE'}).reset_index(drop=True)
 
-    # MIND data
-    mind_filtered = mind_df[mind_df['CODICE_PP'].isin(points_df['ID_PUNTO']) | mind_df['codice_sif'].isin(points_df['ID_PUNTO'])]
-    mind_filtered['ID_PUNTO'] = np.where(
-        mind_filtered['CODICE_PP'].isin(points_df['ID_PUNTO']),
-        mind_filtered['CODICE_PP'],
-        mind_filtered['codice_sif'])
-    mind_filtered = mind_filtered.drop(['CODICE_PP', 'DESCRIZIONE_PUNTO_PRELIEVO', 'PROVINCIA', 'COMUNE',
-       'ANNO', 'DataValidazione', 'Fonte', 'ID_CAMPIONE',
-       'RgaNaccettazione', 'Parametro_unificato', 'UM', 'CAS', 'Segno',
-       'VALORE_TESTO', 'codice_sif', 'ARPA_Plumes', 'X',
-       'Y', 'tipo_falda', 'class_poli'],axis=1)
-    mind_filtered = mind_filtered.rename(columns={'DataCampionamento': 'DATA', 
-                                              'VALORE_NUMERICO': 'VALORE'}).reset_index(drop=True)
-    monit_df = pd.concat([siam_inq, mind_filtered], ignore_index=True).sort_values(["ID_PUNTO", "DATA"]).reset_index(drop=True)
+    # DB AMIIGA
+    amiiga_df["CODICE_PP"] = amiiga_df["CODICE_PP"].astype(str).str.strip().str.upper()
+    amiiga_df["codice_sif"] = amiiga_df["codice_sif"].astype(str).str.strip().str.upper()
+    amiiga_filtered = amiiga_df[(amiiga_df['CODICE_PP'].isin(points_df['ID_PUNTO'])) | (amiiga_df['codice_sif'].isin(points_df['ID_PUNTO']))]
+    amiiga_filtered['ID_PUNTO'] = np.where(
+        amiiga_filtered['CODICE_PP'].isin(points_df['ID_PUNTO']),
+        amiiga_filtered['CODICE_PP'],
+        amiiga_filtered['codice_sif']
+    )
+    amiiga_filtered = amiiga_filtered.drop(['CODICE_PP', 'DESCRIZION', 'PROVINCIA', 'COMUNE','ANNO','DataValida', 
+                                            'Fonte', 'ID_CAMPION', 'RgaNaccett', 'UM', 'CAS', 'Segno','VALORE_TES', 
+                                            'codice_sif', 'ARPA_Plume', 'X', 'corrispond', 'macro', 'Y', 'tipo_falda', 'classifica'], axis=1)
+    amiiga_filtered = amiiga_filtered.rename(columns={'DataCampio': 'DATA', 'VALORE_NUM': 'VALORE',
+                                                    'codice_sif':'ID_PUNTO','Parametro_':'PARAMETRO'}).reset_index(drop=True)
 
-    return monit_df
+    amiiga_Cr6 = amiiga_filtered[(amiiga_filtered['PARAMETRO'] == 'Cromo (VI)')]
+    amiiga_CrTOT = amiiga_filtered[(amiiga_filtered['PARAMETRO'] == 'Cromo Totale (Cr)')]
+    
+    monit_df_Cr6 = pd.concat([siam_cr6, amiiga_Cr6], ignore_index=True).sort_values(["ID_PUNTO", "DATA"]).reset_index(drop=True)
+    monit_df_Cr6["PARAMETRO"] = monit_df_Cr6["PARAMETRO"].replace({
+    "Cromo VI": "Cr6",
+    "Cromo (VI)": "Cr6"})
+    monit_df_CrTOT = pd.concat([siam_crTOT, amiiga_CrTOT], ignore_index=True).sort_values(["ID_PUNTO", "DATA"]).reset_index(drop=True)
+    monit_df_CrTOT["PARAMETRO"] = monit_df_CrTOT["PARAMETRO"].replace({
+    "Cromo totale": "CrTOT",
+    "Cromo Totale (Cr)": "CrTOT"})
+    return [monit_df_Cr6,monit_df_CrTOT]
 
 
 # Load the common Excel files
@@ -55,33 +69,50 @@ asymptotes = pd.DataFrame(values)
 
 # %%
 '''
-PCE, TCE, TCM
+CROMO
 '''
 
 # Get a monitoring dataset per each point for which a mediana has been calculated
-inq = 'TCM'
-points_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/ULT_{inq}_mediane_2019-2023.csv"))  #points
-mind_df = pd.read_excel(os.path.join(cwd2,'PCE_TCE_E_query dati_MIND_2018.xlsx'), sheet_name=f"{inq}")
+inq1 = 'Cr6'
+inq2 = "CrTOT"
+points1_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/ULT_{inq1}_mediane_2019-2023.csv"))  #points
+points2_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/ULT_{inq2}_mediane_2019-2023.csv"))  #points
+amiiga_df = pd.read_excel(os.path.join(cwd2, 'Progetti_vecchi/AMIIGA/DB_AMIIGA.xlsx'))
+monit_df = monitoring(siam_df, amiiga_df, points1_df)
+monit_cr6 = monit_df[0]
+monit_cr6.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq1}_dati_monitoraggio.csv"))
+monit_crTOT = monit_df[1]
+monit_crTOT.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq2}_dati_monitoraggio.csv"))
 
-monit_df = monitoring(inq, siam_df, mind_df, points_df)
-monit_df.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq}_dati_monitoraggio.csv"))
+# %%
+#Add counts
+counts_cr6 = monit_cr6.groupby('ID_PUNTO').size().reset_index(name='numero_misure')
+update1_df = points1_df.merge(counts_cr6, on='ID_PUNTO', how='left')
+update1_df.to_csv(os.path.join(cwd1, f"LAST_{inq1}_mediane_2019-2023.csv"))
+counts_crTOT = monit_crTOT.groupby('ID_PUNTO').size().reset_index(name='numero_misure')
+update2_df = points2_df.merge(counts_crTOT, on='ID_PUNTO', how='left')
+update2_df.to_csv(os.path.join(cwd1, f"LAST_{inq2}_mediane_2019-2023.csv"))
 
-asymptote_values = asymptotes[f"{inq}"].to_list()
-output_folder = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq}") # output folder
+asymptote_values = asymptotes["Cromo"].to_list()
+output_folder_cr6 = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq1}") # output folder
+output_folder_crTOT = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq2}") # output folder
 
 # %%
 #Define lower significant concentration
-inq2 = "Cloroformio"
-lowest = 10
-selected_points = points_df[points_df[f"{inq2}_2019_2023"] >= lowest]["ID_PUNTO"].tolist() # Points to plot
+inq = "Cr6"
+points_df = points1_df
+output_folder = output_folder_cr6
+monitoring_df = monit_cr6
+lowest = 25
+selected_points = points_df[points_df[f"Cromo VI_2019_2023"] >= lowest]["ID_PUNTO"].tolist() # Points to plot
 print (len(selected_points))
 
 # %%
-
+monitoring_df["DATA"] = pd.to_datetime(monitoring_df["DATA"], format="%Y-%m-%d", errors="coerce")
 # Plot each monitoring point
 sns.set_style("darkgrid")
 for point in selected_points:
-    df_point = monit_df[monit_df['ID_PUNTO'] == point]  # Filter data for the point
+    df_point = monitoring_df[monitoring_df['ID_PUNTO'] == point]  # Filter data for the point
     df_point = df_point.sort_values(by="DATA")  # Ensure the dates are sorted
 
     # Create figure
