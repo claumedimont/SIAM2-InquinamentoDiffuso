@@ -78,10 +78,11 @@ inq2 = "CrTOT"
 points1_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/ULT_{inq1}_mediane_2019-2023.csv"))  #points
 points2_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/ULT_{inq2}_mediane_2019-2023.csv"))  #points
 amiiga_df = pd.read_excel(os.path.join(cwd2, 'Progetti_vecchi/AMIIGA/DB_AMIIGA.xlsx'))
-monit_df = monitoring(siam_df, amiiga_df, points1_df)
-monit_cr6 = monit_df[0]
+monit_cr6 = monitoring(siam_df, amiiga_df, points1_df)
+monit_cr6 = monit_cr6[0]
 monit_cr6.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq1}_dati_monitoraggio.csv"))
-monit_crTOT = monit_df[1]
+monit_crTOT = monitoring(siam_df, amiiga_df, points2_df)
+monit_crTOT = monit_crTOT[1]
 monit_crTOT.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq2}_dati_monitoraggio.csv"))
 
 # %%
@@ -99,12 +100,12 @@ output_folder_crTOT = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq2
 
 # %%
 #Define lower significant concentration
-inq = "Cr6"
-points_df = points1_df
-output_folder = output_folder_cr6
-monitoring_df = monit_cr6
+inq = "CrTOT"
+points_df = points2_df
+output_folder = output_folder_crTOT
+monitoring_df = monit_crTOT
 lowest = 25
-selected_points = points_df[points_df[f"Cromo VI_2019_2023"] >= lowest]["ID_PUNTO"].tolist() # Points to plot
+selected_points = points_df[points_df[f"Cromo totale_2019_2023"] >= lowest]["ID_PUNTO"].tolist() # Points to plot
 print (len(selected_points))
 
 # %%
