@@ -15,13 +15,13 @@ main_df = pd.read_excel((os.path.join(in_dir,"SIAM2_PerGrafici.xlsx")))
 # %%
 # Clean df
 #df = main_df.drop_duplicates(subset=['DGR_SITO',"COD_SITO", "ANA_classific_attuale"])
-df = main_df.drop_duplicates(subset=["COD_SITO", 'ANA_classific_attuale',"MISE_descrizione"])
+df = main_df.drop_duplicates(subset=["COD_SITO", 'ANA_classific_attuale',"Matrice", "tipo_sostanza"])
 
 # %%
 # Count occurrences
-df_filtered = df[df["DGR_SITO"] == "Procedimento"]
+df_filtered = df[df["DGR_SITO"] == "Prioritario"]
 #df_counts = df_filtered.groupby(['ANA_classific_attuale', 'descClassSuoli']).size().reset_index(name='Count')
-df_counts = df_filtered.groupby(['ANA_classific_attuale', 'MISE_descrizione']).size().reset_index(name='Count')
+df_counts = df_filtered.groupby(['ANA_classific_attuale', 'Matrice','tipo_sostanza']).size().reset_index(name='Count')
 colors_sostanze = {"Altro": "#003f5c",
           "Pesticidi": "#58508d",
           "SIAM2" : "#bc5090",
@@ -59,11 +59,11 @@ colors_MISP = {"confinamento verticale": "#003f5c",
 fig = px.bar(df_counts, 
              x = 'ANA_classific_attuale', 
              y = 'Count', 
-             color = 'MISE_descrizione',
-             #facet_col="Matrice", 
-             barmode = "group",
+             color = 'tipo_sostanza',
+             facet_col="Matrice", 
+             barmode = "stack",
              #text_auto = True,
-             color_discrete_map = colors_MISE)
+             color_discrete_map = colors_sostanze)
 
 # Add text labels manually and position them on top of the bars
 #fig.update_traces(texttemplate='%{y}', textposition='inside',
@@ -77,13 +77,13 @@ fig.update_layout(
     yaxis_title_font=dict(size=14, family='Arial', weight='bold'),
     title_font = dict(size=16, family='Arial', weight='bold')
 )
-fig.update_layout(
-    yaxis=dict(
-        tickmode='linear',  # Ensures evenly spaced ticks
-        dtick=1,            # Forces ticks to be spaced by 1 (integers only)
-        tickformat="d"      # Ensures numbers are displayed as whole numbers
-    )
-)
+# fig.update_layout(
+#     yaxis=dict(
+#         tickmode='linear',  # Ensures evenly spaced ticks
+#         dtick=1,            # Forces ticks to be spaced by 1 (integers only)
+#         tickformat="d"      # Ensures numbers are displayed as whole numbers
+#     )
+# )
 # fig.update_layout(
 #     title=dict(
 #         text="MISE siti procedimenti",
@@ -100,6 +100,6 @@ fig.update_layout(
 # Show figure
 fig.show()
 
-export_path = os.path.join(in_dir, 'Immagini/MISE_procedi.png')
+export_path = os.path.join(in_dir, 'Immagini/sostanze_priori.png')
 fig.write_image(export_path, scale=3)  # Save the image as PNG
 # %%
