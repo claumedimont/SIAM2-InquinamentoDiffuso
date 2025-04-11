@@ -19,25 +19,28 @@ import os
 # Load the Excel files
 in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/04_REGIONE/SIAM2-AggiornamentoSitiMisure/Elaborazioni/' 
 sel_df = pd.read_excel(os.path.join(in_dir, 'DaCondividire/SIAM2_Complessivo.xlsx'), sheet_name="TuttiRecords")
-priori_df = pd.read_excel(os.path.join(in_dir, 'DaCondividire/SIAM2_Siti_Aggiornati.xlsx'), sheet_name="SITI_PRIORITARI")
-proced_df = pd.read_excel(os.path.join(in_dir, 'DaCondividire/SIAM2_Siti_Aggiornati.xlsx'), sheet_name="SITI_PROCEDIMENTO")
-
+#priori_df = pd.read_excel(os.path.join(in_dir, 'DaCondividire/SIAM2_Siti_Aggiornati.xlsx'), sheet_name="SITI_PRIORITARI")
+#proced_df = pd.read_excel(os.path.join(in_dir, 'DaCondividire/SIAM2_Siti_Aggiornati.xlsx'), sheet_name="SITI_PROCEDIMENTO")
+sorg_df = pd.read_excel(os.path.join(in_dir, 'DaCondividire/SIAM2_Siti_Aggiornati.xlsx'), sheet_name="SORGENTI_SIAM2")
 
 # %%
 #merge info no agregation
-cods_priori = priori_df[['COD_SITO','Stato2017-2019','Simulato_SIAM2']]
-cods_proced = proced_df[['COD_SITO', 'Stato_2017','Simulato_SIAM2', 'Note']]
-agg_merge = pd.merge(cods_priori, sel_df, on='COD_SITO', how='left')
-agg_merge["DGR_SITO"] = 'Prioritario'
-agg_merge = agg_merge.rename({'Stato2017-2019':'Stato_iniziale', 'Stato':'Stato_attuale'}, axis=1)
-agg_merge2 = pd.merge(cods_proced, sel_df, on='COD_SITO', how='left')
-agg_merge2["DGR_SITO"] = 'Procedimento'
-agg_merge2 = agg_merge2.rename({'Stato_2017':'Stato_iniziale', 'Stato':'Stato_attuale'}, axis=1)
-siti_siam = pd.concat([agg_merge, agg_merge2], ignore_index = True)
+#cods_priori = priori_df[['COD_SITO','Stato2017-2019','Simulato_SIAM2']]
+#cods_proced = proced_df[['COD_SITO', 'Stato_2017','Simulato_SIAM2', 'Note']]
+cods_sorg = sorg_df[['COD_SITO', 'Acquifero','ANA_denom_sito', 'DGR17-19', 'Tipo_sorgente','Barriera', 'Barriera_da','X','Y','Sostanze_simulati']]
+# agg_merge = pd.merge(cods_priori, sel_df, on='COD_SITO', how='left')
+# agg_merge["DGR_SITO"] = 'Prioritario'
+# agg_merge = agg_merge.rename({'Stato2017-2019':'Stato_iniziale', 'Stato':'Stato_attuale'}, axis=1)
+# agg_merge2 = pd.merge(cods_proced, sel_df, on='COD_SITO', how='left')
+# agg_merge2["DGR_SITO"] = 'Procedimento'
+# agg_merge2 = agg_merge2.rename({'Stato_2017':'Stato_iniziale', 'Stato':'Stato_attuale'}, axis=1)
+# siti_siam = pd.concat([agg_merge, agg_merge2], ignore_index = True)
 #agg_merge = agg_merge.drop(['Provincia', 'Comune'], axis=1)
+agg_merge = pd.merge(cods_sorg, sel_df, on='COD_SITO', how='left')
+agg_merge = agg_merge.rename({'Stato':'Stato_attuale'}, axis=1)
 
 # %%
-siti_siam.to_excel(os.path.join(in_dir,"solo_siti_comp.xlsx"))
+agg_merge.to_excel(os.path.join(in_dir,"solo_sorgenti.xlsx"))
 
 # %%
 # ultimate aggregation
