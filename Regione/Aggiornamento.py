@@ -40,16 +40,24 @@ agg_merge = pd.merge(cods_sorg, sel_df, on='COD_SITO', how='left')
 agg_merge = agg_merge.rename({'Stato':'Stato_attuale'}, axis=1)
 
 # %%
-agg_merge.to_excel(os.path.join(in_dir,"solo_sorgenti.xlsx"))
+#agg_merge.to_excel(os.path.join(in_dir,"solo_sorgenti.xlsx"))
 
 # %%
 # ultimate aggregation
 # Group by 'COD_SITO' and aggregate multiple values as lists
-aggregated_df = sel_df.groupby('COD_SITO').agg({
+aggregated_df = agg_merge.groupby('COD_SITO').agg({
+    'Acquifero':'first',
+    'X':'first', 'Y':'first',
+    'DGR17-19': 'first',
+    'Tipo_sorgente': 'first',
+    'Barriera': 'first',
+    'Barriera_da': 'first',
+    'Sostanze_simulati': 'first',
     'Provincia':'first',
     'Comune':'first',
-    'Stato': 'first',
-    'ANA_denom_sito': 'first',
+    'Stato_attuale': 'first',
+    'ANA_denom_sito_x': 'first',
+    'ANA_denom_sito_y': 'first',
     'ANA_classific_attuale': 'first',
     'descClassSuoli': 'first',
     'descClassAcque': 'first',
@@ -62,7 +70,7 @@ aggregated_df = sel_df.groupby('COD_SITO').agg({
     'Matrice': lambda x: list(set(x.dropna())),  # Remove duplicates & NaN
     'tipo_sostanza': lambda x: list(set(x.dropna())),
     'sostanze': lambda x: list(set(x.dropna())),
-    #'conc_max': lambda x: list(set(x.dropna())),
+    'conc_max': lambda x: list(set(x.dropna())),
     'TecnologieDescrizione': lambda x: list(set(x.dropna())),
     'TipoTecnologiaDescrizione': lambda x: list(set(x.dropna())),
     'note_tecnologia': lambda x: list(set(x.dropna())),
@@ -71,5 +79,5 @@ aggregated_df = sel_df.groupby('COD_SITO').agg({
 }).reset_index()
 
 # %%
-aggregated_df.to_excel(os.path.join(in_dir,"tutti_merge_unique.xlsx"))
+aggregated_df.to_excel(os.path.join(in_dir,"solo_sorgenti.xlsx"))
 # %%
