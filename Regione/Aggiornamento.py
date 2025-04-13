@@ -40,7 +40,7 @@ agg_merge = pd.merge(cods_sorg, sel_df, on='COD_SITO', how='left')
 agg_merge = agg_merge.rename({'Stato':'Stato_attuale'}, axis=1)
 
 # %%
-#agg_merge.to_excel(os.path.join(in_dir,"solo_sorgenti.xlsx"))
+agg_merge.to_excel(os.path.join(in_dir,"solo_sorgenti_multirighe.xlsx"))
 
 # %%
 # ultimate aggregation
