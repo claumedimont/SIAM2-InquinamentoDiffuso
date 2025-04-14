@@ -121,7 +121,14 @@ selected_points = selected_first[selected_first[f"numero_misure"] >= lowest]["ID
 print (len(selected_points))
 
 # %%
+#Or input points directly
+selected_points = ['151460041', '151460402', '151460311']
+delimit = 1   #1 yes, 0 no
+threshold = 50
+
+# %%
 monitoring_df["DATA"] = pd.to_datetime(monitoring_df["DATA"], format="%Y-%m-%d", errors="coerce")
+
 # Plot each monitoring point
 sns.set_style("darkgrid")
 for point in selected_points:
@@ -138,11 +145,16 @@ for point in selected_points:
     plt.xlabel("Data", fontsize=12)
     plt.ylabel(f"Valore {inq} (ug/L)", fontsize=12)
     plt.title(f"{point}", fontsize=14, fontweight="bold")
-    max_y = df_point["VALORE"].max()  # Get max value from data
-    # If max_y is NaN or Inf, set a default upper limit
-    if not np.isfinite(max_y):  
-        max_y = 10 
-    plt.ylim(0, max_y + 5) 
+    
+    #delimiting plots
+    if delimit == 1:
+        plt.ylim(0, threshold)
+    else:
+        max_y = df_point["VALORE"].max()  # Get max value from data
+        # If max_y is NaN or Inf, set a default upper limit
+        if not np.isfinite(max_y):  
+            max_y = 10 
+        plt.ylim(0, max_y + 5)
 
     # Rotate x-axis labels and format dates nicely
     plt.xticks(rotation=45, fontsize=10)

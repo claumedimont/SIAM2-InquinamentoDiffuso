@@ -13,6 +13,7 @@ import seaborn as sns
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
 
+# %%
 # Define function
 # Get the data ONLY for the points inside points_df from the monitoring data files
 def monitoring(inq, inq2, siam_df, mind_df, points_df):
@@ -74,6 +75,17 @@ monit_df.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq}_dati_mo
 # update ult files!
 
 # %%
+'''
+PLOT FROM HERE
+'''
+inq = 'TCM'
+inq2 = "Cloroformio"
+cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/'
+points_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/LAST_{inq}_mediane_2019-2023.csv"))  #points
+monit_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq}_dati_monitoraggio.csv"))
+monit_df["VALORE"] = pd.to_numeric(monit_df["VALORE"], errors="coerce")
+monit_df["DATA"] = pd.to_datetime(monit_df["DATA"], errors='coerce')
+
 #asymptote_values = asymptotes[f"{inq}"].to_list()
 output_folder = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq}") # output folder
 
@@ -85,6 +97,11 @@ lowest_misure = 10
 selected_points = selected_first[selected_first["numero_misure"] >= lowest_misure]["ID_PUNTO"].tolist()
 print (len(selected_points))
 
+# %%
+#Or input points directly
+selected_points = ['PO015146NR1105', '151460042', '151460499','151460176']
+delimit = 1   #1 yes, 0 no
+threshold = 50
 
 # %%
 
@@ -104,11 +121,16 @@ for point in selected_points:
     plt.xlabel("Data", fontsize=12, fontweight="bold")
     plt.ylabel(f"Valore {inq} (ug/L)", fontsize=12, fontweight="bold")
     plt.title(f"{point}", fontsize=14, fontweight="bold")
-    max_y = df_point["VALORE"].max()  # Get max value from data
-    # If max_y is NaN or Inf, set a default upper limit
-    if not np.isfinite(max_y):  
-        max_y = 10 
-    plt.ylim(0, max_y + 5) 
+
+    #delimiting plots
+    if delimit == 1:
+        plt.ylim(0, threshold)
+    else:
+        max_y = df_point["VALORE"].max()  # Get max value from data
+        # If max_y is NaN or Inf, set a default upper limit
+        if not np.isfinite(max_y):  
+            max_y = 10 
+        plt.ylim(0, max_y + 5) 
 
     # Rotate x-axis labels and format dates nicely
     plt.xticks(rotation=45, fontsize=10)
