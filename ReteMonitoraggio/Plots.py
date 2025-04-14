@@ -51,11 +51,11 @@ def monitoring(inq, inq2, siam_df, mind_df, points_df):
 cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/'
 cwd2 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Dati origine/Analisi chimiche/' 
 siam_df = pd.read_excel(os.path.join(cwd1,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name="idrochimica_tutt_step6")
-values = {'PCE': [1.1, 10, 30, 70, 100, 200, 500, 1000], 
-          'TCE': [1.5, 10, 30, 70, 100, 200, 500, 1000],
-          'TCM': [0.15, 1, 10, 30, 50, 100, 200, 500],
-          'Cromo': [5, 10, 30, 70, 100, 200, 500, 1000]}
-asymptotes = pd.DataFrame(values)
+#values = {'PCE': [1.1, 10, 30, 70, 100, 200, 500, 1000], 
+          #'TCE': [1.5, 10, 30, 70, 100, 200, 500, 1000],
+          #'TCM': [0.15, 1, 10, 30, 50, 100, 200, 500],
+          #'Cromo': [5, 10, 30, 70, 100, 200, 500, 1000]}
+#asymptotes = pd.DataFrame(values)
 
 # %%
 '''
@@ -63,9 +63,9 @@ PCE, TCE, TCM
 '''
 
 # Get a monitoring dataset per each point for which a mediana has been calculated
-inq = 'TCE'
-inq2 = "TCE"
-points_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/ULT_{inq}_mediane_2019-2023.csv"))  #points
+inq = 'TCM'
+inq2 = "Cloroformio"
+points_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/LAST_{inq}_mediane_2019-2023.csv"))  #points
 mind_df = pd.read_excel(os.path.join(cwd2,'PCE_TCE_E_query dati_MIND_2018.xlsx'), sheet_name=f"{inq}")
 
 monit_df = monitoring(inq, inq2, siam_df, mind_df, points_df)
@@ -74,14 +74,17 @@ monit_df.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq}_dati_mo
 # update ult files!
 
 # %%
-asymptote_values = asymptotes[f"{inq}"].to_list()
+#asymptote_values = asymptotes[f"{inq}"].to_list()
 output_folder = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq}") # output folder
 
 # %%
 #Define lower significant concentration
-lowest = 30
-selected_points = points_df[points_df[f"{inq2}_2019_2023"] >= lowest]["ID_PUNTO"].tolist() # Points to plot
+lowest_conc = 5
+selected_first = points_df[points_df[f"{inq2}_2019_2023"] >= lowest_conc] # Points to plot
+lowest_misure = 10
+selected_points = selected_first[selected_first["numero_misure"] >= lowest_misure]["ID_PUNTO"].tolist()
 print (len(selected_points))
+
 
 # %%
 
@@ -98,8 +101,8 @@ for point in selected_points:
     sns.lineplot(data=df_point, x="DATA", y="VALORE", marker="o", color="royalblue", linewidth=2.5)
 
     # Formatting the plot
-    plt.xlabel("Data", fontsize=12)
-    plt.ylabel(f"Valore {inq} (ug/L)", fontsize=12)
+    plt.xlabel("Data", fontsize=12, fontweight="bold")
+    plt.ylabel(f"Valore {inq} (ug/L)", fontsize=12, fontweight="bold")
     plt.title(f"{point}", fontsize=14, fontweight="bold")
     max_y = df_point["VALORE"].max()  # Get max value from data
     # If max_y is NaN or Inf, set a default upper limit
@@ -115,8 +118,8 @@ for point in selected_points:
     plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(integer=True)) # just integers on y axis
 
     # Add reference horizontal lines (asymptotes)
-    for y_value in asymptote_values:
-        plt.axhline(y=y_value, color="black", linestyle="--", linewidth=1, alpha=0.7)
+    #for y_value in asymptote_values:
+    #    plt.axhline(y=y_value, color="black", linestyle="--", linewidth=1, alpha=0.7)
 
     # Improve layout
     plt.grid(True, linestyle="--", alpha=0.6)  # Dotted grid

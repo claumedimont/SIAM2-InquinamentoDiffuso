@@ -17,16 +17,16 @@ main_df = pd.read_excel((os.path.join(in_dir,"SIAM2_PerGrafici.xlsx")))
 
 # %%
 # Clean df
-df = main_df.drop_duplicates(subset=['DGR_SITO',"COD_SITO", "ANA_classific_attuale"])
-#df = main_df.drop_duplicates(subset=["COD_SITO", 'ANA_classific_attuale',"Matrice", "tipo_sostanza"])
+#df = main_df.drop_duplicates(subset=['DGR_SITO',"COD_SITO", "ANA_classific_attuale"])
+df = main_df.drop_duplicates(subset=["COD_SITO", 'ANA_classific_attuale',"Matrice", "tipo_sostanza"])
 #df = main_df.drop_duplicates(subset=["COD_SITO", 'ANA_classific_attuale',"Matrice", "TecnologieDescrizione"])
 
 # %%
 # Count occurrences
 #df_filtered = df[(df["DGR_SITO"] == "Prioritario")|(df["DGR_SITO"] == "Sorgenti")]
 df_filtered = df[df["DGR_SITO"] == "Procedimento"]
-df_counts = df_filtered.groupby(['ANA_classific_attuale', 'MISP_descrizione']).size().reset_index(name='Count')
-#df_counts = df_filtered.groupby(['ANA_classific_attuale', 'Matrice','TecnologieDescrizione']).size().reset_index(name='Count')
+#df_counts = df_filtered.groupby(['ANA_classific_attuale', 'MISP_descrizione']).size().reset_index(name='Count')
+df_counts = df_filtered.groupby(['ANA_classific_attuale', 'Matrice','tipo_sostanza']).size().reset_index(name='Count')
 
 
 # %%

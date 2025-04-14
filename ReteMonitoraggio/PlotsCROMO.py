@@ -61,11 +61,11 @@ def monitoring(siam_df, amiiga_df, points_df):
 cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/'
 cwd2 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Dati origine/Analisi chimiche/' 
 siam_df = pd.read_excel(os.path.join(cwd1,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name="idrochimica_tutt_step6")
-values = {'PCE': [1.1, 10, 30, 70, 100, 200, 500, 1000], 
-          'TCE': [1.5, 10, 30, 70, 100, 200, 500, 1000],
-          'TCM': [0.15, 1, 10, 30, 50, 100, 200, 500],
-          'Cromo': [5, 10, 30, 70, 100, 200, 500, 1000]}
-asymptotes = pd.DataFrame(values)
+# values = {'PCE': [1.1, 10, 30, 70, 100, 200, 500, 1000], 
+#           'TCE': [1.5, 10, 30, 70, 100, 200, 500, 1000],
+#           'TCM': [0.15, 1, 10, 30, 50, 100, 200, 500],
+#           'Cromo': [5, 10, 30, 70, 100, 200, 500, 1000]}
+# asymptotes = pd.DataFrame(values)
 
 # %%
 '''
@@ -94,18 +94,30 @@ counts_crTOT = monit_crTOT.groupby('ID_PUNTO').size().reset_index(name='numero_m
 update2_df = points2_df.merge(counts_crTOT, on='ID_PUNTO', how='left')
 update2_df.to_csv(os.path.join(cwd1, f"LAST_{inq2}_mediane_2019-2023.csv"))
 
-asymptote_values = asymptotes["Cromo"].to_list()
-output_folder_cr6 = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq1}") # output folder
-output_folder_crTOT = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq2}") # output folder
+# %%
+'''
+START HERE TO JUST PLOT
+'''
+cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/'
+points2_df = pd.read_csv(os.path.join(cwd1, "PerConfronto/ArcGIS_input/DEF/LAST_CrTOT_mediane_2019-2023.csv"))
+monit_crTOT = pd.read_csv(os.path.join(cwd1, "PerConfronto/ArcGIS_input/DEF/CrTOT_dati_monitoraggio.csv"))
+# asymptote_values = asymptotes["Cromo"].to_list()
+#output_folder_cr6 = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq1}") # output folder
+output_folder_crTOT = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/CrTOT") # output folder
 
 # %%
-#Define lower significant concentration
+#INPUT HERE
 inq = "CrTOT"
 points_df = points2_df
 output_folder = output_folder_crTOT
 monitoring_df = monit_crTOT
-lowest = 25
-selected_points = points_df[points_df[f"Cromo totale_2019_2023"] >= lowest]["ID_PUNTO"].tolist() # Points to plot
+
+# %%
+#Define lower significant concentration
+lowest_conc = 5
+selected_first = points_df[points_df[f"Cromo totale_2019_2023"] >= lowest_conc] # Points to plot
+lowest = 10
+selected_points = selected_first[selected_first[f"numero_misure"] >= lowest]["ID_PUNTO"].tolist() # Points to plot
 print (len(selected_points))
 
 # %%
@@ -140,8 +152,8 @@ for point in selected_points:
     plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(integer=True)) # just integers on y axis
 
     # Add reference horizontal lines (asymptotes)
-    for y_value in asymptote_values:
-        plt.axhline(y=y_value, color="black", linestyle="--", linewidth=1, alpha=0.7)
+    #for y_value in asymptote_values:
+    #    plt.axhline(y=y_value, color="black", linestyle="--", linewidth=1, alpha=0.7)
 
     # Improve layout
     plt.grid(True, linestyle="--", alpha=0.6)  # Dotted grid
