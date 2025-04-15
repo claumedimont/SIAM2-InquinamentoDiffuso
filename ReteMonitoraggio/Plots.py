@@ -47,7 +47,7 @@ def monitoring(inq, inq2, siam_df, mind_df, points_df):
 
     return monit_df
 
-
+# %%
 # Load the common Excel files
 cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/'
 cwd2 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Dati origine/Analisi chimiche/' 
@@ -64,8 +64,8 @@ PCE, TCE, TCM
 '''
 
 # Get a monitoring dataset per each point for which a mediana has been calculated
-inq = 'TCM'
-inq2 = "Cloroformio"
+inq = 'TCE'
+inq2 = "TCE"
 points_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/LAST_{inq}_mediane_2019-2023.csv"))  #points
 mind_df = pd.read_excel(os.path.join(cwd2,'PCE_TCE_E_query dati_MIND_2018.xlsx'), sheet_name=f"{inq}")
 
@@ -78,8 +78,8 @@ monit_df.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq}_dati_mo
 '''
 PLOT FROM HERE
 '''
-inq = 'TCM'
-inq2 = "Cloroformio"
+inq = 'TCE'
+inq2 = "TCE"
 cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/'
 points_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/LAST_{inq}_mediane_2019-2023.csv"))  #points
 monit_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq}_dati_monitoraggio.csv"))
@@ -99,9 +99,9 @@ print (len(selected_points))
 
 # %%
 #Or input points directly
-selected_points = ['PO015146NR1105', '151460042', '151460499','151460176']
+selected_points = ['151460393', '151462838', 'PO015182NRA865']
 delimit = 1   #1 yes, 0 no
-threshold = 50
+threshold = 500
 
 # %%
 
