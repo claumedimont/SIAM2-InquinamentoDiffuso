@@ -17,15 +17,15 @@ main_df = pd.read_excel((os.path.join(in_dir,"SIAM2_PerGrafici.xlsx")))
 
 # %%
 # Clean df
-df = main_df.drop_duplicates(subset=['DGR_SITO',"COD_SITO", "ANA_classific_attuale", 'MISP_descrizione'])
+#df = main_df.drop_duplicates(subset=['DGR_SITO',"COD_SITO", "ANA_classific_attuale", 'MISE_descrizione'])
 #df = main_df.drop_duplicates(subset=["COD_SITO", 'ANA_classific_attuale',"Matrice", "tipo_sostanza"])
-#df = main_df.drop_duplicates(subset=["COD_SITO", 'ANA_classific_attuale',"Matrice", "TecnologieDescrizione"])
+df = main_df.drop_duplicates(subset=["COD_SITO", 'ANA_classific_attuale',"Matrice", "TecnologieDescrizione"])
 
 # Count occurrences
-#df_filtered = df[(df["DGR_SITO"] == "Prioritario")|(df["DGR_SITO"] == "Sorgenti")]
-df_filtered = df[df["DGR_SITO"] == "Procedimento"]
-df_counts = df_filtered.groupby(['ANA_classific_attuale', 'MISP_descrizione']).size().reset_index(name='Count')
-#df_counts = df_filtered.groupby(['ANA_classific_attuale', 'Matrice','TecnologieDescrizione'], dropna=False).size().reset_index(name='Count')
+df_filtered = df[(df["DGR_SITO"] == "Prioritario")|(df["DGR_SITO"] == "Sorgenti")]
+#df_filtered = df[df["DGR_SITO"] == "Procedimento"]
+#df_counts = df_filtered.groupby(['ANA_classific_attuale', 'MISE_descrizione']).size().reset_index(name='Count')
+df_counts = df_filtered.groupby(['ANA_classific_attuale', 'Matrice','TecnologieDescrizione'], dropna=False).size().reset_index(name='Count')
 
 label_map = {
     "bonificato": "B",
@@ -76,11 +76,11 @@ colors_MISP = {"confinamento verticale": "#005F73",
           }
 
 #ATTENTION
-titulo = "Siti procedimenti: Tecnologie MISP"
-image = 'Procedi_MISP'
-hue = 'MISP_descrizione'
-leyenda = "Tecnologie MISP"
-palette = colors_MISP
+titulo = "Siti prioritari: Tecnologie di bonifica"
+image = 'Priori_tenco'
+hue = 'TecnologieDescrizione'
+leyenda = "Tecnologia di bonifica"
+palette = colors_tecno
 
 
 
