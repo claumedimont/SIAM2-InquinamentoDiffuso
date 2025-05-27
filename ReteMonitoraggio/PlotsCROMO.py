@@ -98,19 +98,20 @@ update2_df.to_csv(os.path.join(cwd1, f"LAST_{inq2}_mediane_2019-2023.csv"))
 '''
 START HERE TO JUST PLOT
 '''
+inq = "CrTOT"
 cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/'
-points2_df = pd.read_csv(os.path.join(cwd1, "PerConfronto/ArcGIS_input/DEF/LAST_CrTOT_mediane_2019-2023.csv"))
-monit_crTOT = pd.read_csv(os.path.join(cwd1, "PerConfronto/ArcGIS_input/DEF/CrTOT_dati_monitoraggio.csv"))
+points2_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/LAST_{inq}_mediane_2019-2023.csv"))
+monit_data = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq}_dati_monitoraggio.csv"))
 # asymptote_values = asymptotes["Cromo"].to_list()
 #output_folder_cr6 = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq1}") # output folder
-output_folder_crTOT = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/CrTOT") # output folder
+output_folder = os.path.join(cwd1, f"PerConfronto/ArcGIS_input/PLOTS/{inq}") # output folder
 
 # %%
 #INPUT HERE
 inq = "CrTOT"
 points_df = points2_df
-output_folder = output_folder_crTOT
-monitoring_df = monit_crTOT
+output_folder = output_folder
+monitoring_df = monit_data
 
 # %%
 #Define lower significant concentration
@@ -122,9 +123,9 @@ print (len(selected_points))
 
 # %%
 #Or input points directly
-selected_points = ['151460041', '151460402', '151460311']
-delimit = 1   #1 yes, 0 no
-threshold = 50
+selected_points = ['PO015146NR3093', '151460401']
+delimit = 0   #1 yes, 0 no
+threshold = 25
 
 # %%
 monitoring_df["DATA"] = pd.to_datetime(monitoring_df["DATA"], format="%Y-%m-%d", errors="coerce")
