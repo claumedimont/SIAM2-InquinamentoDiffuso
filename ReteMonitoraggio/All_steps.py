@@ -20,24 +20,27 @@ import os
 
 # Load the Excel files
 in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/PerConfronto/Input_files/' 
-acquiferi_df = pd.read_excel(os.path.join(in_dir,'Assegnazione_acquifero_230125.xlsx'), sheet_name="Confronti_classifica")
-idrochimica_df = pd.read_excel(os.path.join(in_dir,'idrochimica_tutti_step6_SL_31102024.xlsx'))
-anagrafica_df = pd.read_excel(os.path.join(in_dir, 'Anagarafiche_aggregate_tutti_SL_100125.xlsx'))
+#acquiferi_df = pd.read_excel(os.path.join(in_dir,'Assegnazione_acquifero_230125.xlsx'), sheet_name="Confronti_classifica")
+acquiferi_df = pd.read_excel(os.path.join(in_dir,'E_Dati_Muggiò_rev1_acquif.xlsx'))
+#idrochimica_df = pd.read_excel(os.path.join(in_dir,'idrochimica_tutti_step6_SL_31102024.xlsx'))
+idrochimica_df = pd.read_excel(os.path.join(in_dir,'E_Dati_Muggiò_rev1.xlsx'), sheet_name="DATI_MUGGIO")   # has been modified for MUGGIO data!
+#anagrafica_df = pd.read_excel(os.path.join(in_dir, 'Anagarafiche_aggregate_tutti_SL_100125.xlsx'))
+anagrafica_df = pd.read_excel(os.path.join(in_dir,'E_Dati_Muggiò_rev1.xlsx'), sheet_name="anagrafica")
 
 
 # %%
 # 1. COMPARE COORDS BETWEEN 'ANAGRAFICA' AND 'ASSEGNAZIONE ACQUIFERO'
 # Keep only the columns 'ID_point', 'X', and 'Y'
-df1 = acquiferi_df[['id_punto_idrochimica', 'X', 'Y', 'CLASSIFICA_DEF']]
-df1['X'] = df1['X'].round(0)
-df1['Y'] = df1['Y'].round(0)
-df2 = anagrafica_df[['id_punto_idrochimica', 'Xn', 'Yn']]
+df1 = acquiferi_df[['id_punto','Classifica_DEF']]
+#df1['X'] = df1['X'].round(0)
+#df1['Y'] = df1['Y'].round(0)
+df2 = anagrafica_df[['id_punto', 'Xn', 'Yn']]
 df2['Xn'] = df2['Xn'].round(0)
 df2['Yn']= df2['Yn'].round(0)
 
 # Merge the dataframes on 'ID_point' to compare coordinates
-merged_df = pd.merge(df1, df2, on='id_punto_idrochimica')
-merged_df.rename(columns={'id_punto_idrochimica': 'ID_PUNTO'}, inplace=True)
+merged_df = pd.merge(df1, df2, on='id_punto')
+merged_df.rename(columns={'id_punto': 'ID_PUNTO', 'Classifica_DEF':'CLASSIFICA_DEF'}, inplace=True)
 
 # Add a flag column where inconsistencies between the coordinates are found
 #merged_df['Flag'] = (merged_df['X'] != merged_df['Xn']) | (merged_df['Y'] != merged_df['Yn'])
@@ -88,7 +91,7 @@ final_df.to_excel(os.path.join(in_dir,'Merged_idrochimica.xlsx'), index=False)
 NEW PART: GET MEDIAN VALUES FOR PERIODS 2015-2019 AND 2020-2023 PER EACH COMPONENT
 
 '''
-# Run STEP 1. first
+# Run STEP 1. first !
 # 2. GET ANNUAL MEDIAN VALUES OF HYDROCHEMICAL DATA 'MEDIANA ANNUALE DATI IDROCHIMICI'
 # drop unnecesary cols
 df3 = idrochimica_df[['ID_PUNTO', 'DATA', 'VALORE_MODIFICATO', 'PARAMETRO', 'FONTE']]
@@ -101,12 +104,17 @@ df3['ANNO']=df3['DATA'].dt.year
 period2 = range(2019, 2023)
 
 # Preparing files to merge
-merged_df = merged_df.drop(['X', 'Y'], axis=1)
+# merged_df = merged_df.drop(['X', 'Y'], axis=1)
 #fixing possible sources of error during merge
 #setting as string
 merged_df['ID_PUNTO'] = merged_df['ID_PUNTO'].astype(str)
 #deleting white spaces
 merged_df['ID_PUNTO'] = merged_df['ID_PUNTO'].str.strip() 
+
+# selection df3
+sel_df3 = df3[['ID_PUNTO','FONTE']]
+merged_df = pd.merge(merged_df, sel_df3, on="ID_PUNTO", how='left')
+merged_df = merged_df.drop_duplicates()
 
 # Process the data to calculate medians for each parameter and period
 # Initialize an empty list to store results for all parameters
@@ -139,9 +147,9 @@ for param in parameters:
     final_meds = pd.merge(merged_df, median_2019_2023, on='ID_PUNTO', how='left')
 
     # Save the result to a file for the current parameter
-    final_meds.to_excel(os.path.join(in_dir,f'{param}_Mediane2019-2023.xlsx'), index=False)
+    final_meds.to_excel(os.path.join(in_dir,f'Muggio_{param}_Mediane2019-2023.xlsx'), index=False)
 
     # Print confirmation
-    print(f"Saved results for {param} to {final_meds}")
+    print(f"Saved results for {param} to {median_2019_2023}")
 
 # %%

@@ -13,7 +13,6 @@ import seaborn as sns
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
 
-# %%
 # Define function
 # Get the data ONLY for the points inside points_df from the monitoring data files
 def monitoring(inq, inq2, siam_df, mind_df, points_df):
@@ -51,7 +50,8 @@ def monitoring(inq, inq2, siam_df, mind_df, points_df):
 # Load the common Excel files
 cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/'
 cwd2 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Dati origine/Analisi chimiche/' 
-siam_df = pd.read_excel(os.path.join(cwd1,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name="idrochimica_tutt_step6")
+#siam_df = pd.read_excel(os.path.join(cwd1,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name="idrochimica_tutt_step6")
+siam_df = pd.read_excel(os.path.join(cwd1,'PerConfronto/Input_files/E_Dati_Muggiò_rev1.xlsx'), sheet_name="DATI_MUGGIO")
 #values = {'PCE': [1.1, 10, 30, 70, 100, 200, 500, 1000], 
           #'TCE': [1.5, 10, 30, 70, 100, 200, 500, 1000],
           #'TCM': [0.15, 1, 10, 30, 50, 100, 200, 500],
@@ -64,22 +64,27 @@ PCE, TCE, TCM
 '''
 
 # Get a monitoring dataset per each point for which a mediana has been calculated
-inq = 'TCE'
-inq2 = "TCE"
-points_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/LAST_{inq}_mediane_2019-2023.csv"))  #points
+inq = 'TCM'
+inq2 = "Cloroformio"
+points_df = pd.read_excel(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/Muggio_{inq}_Mediane2019-2023.xlsx"))  #points
 mind_df = pd.read_excel(os.path.join(cwd2,'PCE_TCE_E_query dati_MIND_2018.xlsx'), sheet_name=f"{inq}")
 
 monit_df = monitoring(inq, inq2, siam_df, mind_df, points_df)
-monit_df.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq}_dati_monitoraggio.csv")) #USE THIS TO UPDATE N MISURE
+monit_df.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/Muggio_{inq}_dati_monitoraggio.csv")) #USE THIS TO UPDATE N MISURE
 
 # update ult files!
+
+#Add counts
+counts = monit_df.groupby('ID_PUNTO').size().reset_index(name='numero_misure')
+update_df = points_df.merge(counts, on='ID_PUNTO', how='left')
+update_df.to_csv(os.path.join(cwd1, f"LAST_Muggio_{inq}_mediane_2019-2023.csv"))
 
 # %%
 '''
 PLOT FROM HERE
 '''
-inq = 'TCE'
-inq2 = "TCE"
+inq = 'TCM'
+inq2 = "Cloroformio"
 cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/'
 points_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/LAST_{inq}_mediane_2019-2023.csv"))  #points
 monit_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq}_dati_monitoraggio.csv"))
@@ -99,8 +104,8 @@ print (len(selected_points))
 
 # %%
 #Or input points directly
-selected_points = ['151460393', '151462838', 'PO015182NRA865']
-delimit = 1   #1 yes, 0 no
+selected_points = []
+delimit = 0   #1 yes, 0 no
 threshold = 500
 
 # %%

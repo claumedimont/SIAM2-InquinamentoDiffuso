@@ -60,7 +60,8 @@ def monitoring(siam_df, amiiga_df, points_df):
 # Load the common Excel files
 cwd1 = 'c:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/'
 cwd2 = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Dati origine/Analisi chimiche/' 
-siam_df = pd.read_excel(os.path.join(cwd1,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name="idrochimica_tutt_step6")
+#siam_df = pd.read_excel(os.path.join(cwd1,'idrochimica_tutti_step6_SL_31102024.xlsx'), sheet_name="idrochimica_tutt_step6")
+siam_df = pd.read_excel(os.path.join(cwd1,'PerConfronto/Input_files/E_Dati_Muggiò_rev1.xlsx'), sheet_name="DATI_MUGGIO")
 # values = {'PCE': [1.1, 10, 30, 70, 100, 200, 500, 1000], 
 #           'TCE': [1.5, 10, 30, 70, 100, 200, 500, 1000],
 #           'TCM': [0.15, 1, 10, 30, 50, 100, 200, 500],
@@ -75,24 +76,26 @@ CROMO
 # Get a monitoring dataset per each point for which a mediana has been calculated
 inq1 = 'Cr6'
 inq2 = "CrTOT"
-points1_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/ULT_{inq1}_mediane_2019-2023.csv"))  #points
-points2_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/ULT_{inq2}_mediane_2019-2023.csv"))  #points
+#points1_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/ULT_{inq1}_mediane_2019-2023.csv"))  #points
+points1_df = pd.read_excel(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/Muggio_{inq1}_Mediane2019-2023.xlsx"))
+#points2_df = pd.read_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/ULT_{inq2}_mediane_2019-2023.csv"))  #points
+points2_df = pd.read_excel(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/Muggio_{inq2}_Mediane2019-2023.xlsx"))
 amiiga_df = pd.read_excel(os.path.join(cwd2, 'Progetti_vecchi/AMIIGA/DB_AMIIGA.xlsx'))
 monit_cr6 = monitoring(siam_df, amiiga_df, points1_df)
 monit_cr6 = monit_cr6[0]
-monit_cr6.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq1}_dati_monitoraggio.csv"))
+monit_cr6.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/Muggio_{inq1}_dati_monitoraggio.csv"))
 monit_crTOT = monitoring(siam_df, amiiga_df, points2_df)
 monit_crTOT = monit_crTOT[1]
-monit_crTOT.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/{inq2}_dati_monitoraggio.csv"))
+monit_crTOT.to_csv(os.path.join(cwd1, f"PerConfronto/ArcGIS_input/DEF/Muggio_{inq2}_dati_monitoraggio.csv"))
 
 # %%
 #Add counts
 counts_cr6 = monit_cr6.groupby('ID_PUNTO').size().reset_index(name='numero_misure')
 update1_df = points1_df.merge(counts_cr6, on='ID_PUNTO', how='left')
-update1_df.to_csv(os.path.join(cwd1, f"LAST_{inq1}_mediane_2019-2023.csv"))
+update1_df.to_csv(os.path.join(cwd1, f"LAST_Muggio_{inq1}_mediane_2019-2023.csv"))
 counts_crTOT = monit_crTOT.groupby('ID_PUNTO').size().reset_index(name='numero_misure')
 update2_df = points2_df.merge(counts_crTOT, on='ID_PUNTO', how='left')
-update2_df.to_csv(os.path.join(cwd1, f"LAST_{inq2}_mediane_2019-2023.csv"))
+update2_df.to_csv(os.path.join(cwd1, f"LAST_Muggio_{inq2}_mediane_2019-2023.csv"))
 
 # %%
 '''
