@@ -47,22 +47,39 @@ tcm_remove = out_df["TCM"].dropna().unique().astype(str)
 cr6_remove = out_df["Cr6"].dropna().unique().astype(str)
 crtot_remove = out_df["CrTOT"].dropna().unique().astype(str)
 
+def normalize_ids(series):
+    return (series.astype(str)
+                  .str.strip()          # remove leading/trailing spaces
+                  .str.replace(r"\s+", "", regex=True)  # remove ALL whitespace
+                  .str.upper())         # make uppercase for consistency
+
+# Apply to datasets
+for df in [pce_df, tce_df, tcm_df, cr6_df, crTOT_df]:
+    df["ID_PUNTO"] = normalize_ids(df["ID_PUNTO"])
+
+# Apply to removal lists
+pce_remove = normalize_ids(pd.Series(pce_remove)).unique()
+tce_remove = normalize_ids(pd.Series(tce_remove)).unique()
+tcm_remove = normalize_ids(pd.Series(tcm_remove)).unique()
+cr6_remove = normalize_ids(pd.Series(cr6_remove)).unique()
+crtot_remove = normalize_ids(pd.Series(crtot_remove)).unique()
+
 # %%
 # filter datasets
 pce_df["ID_PUNTO"] = pce_df["ID_PUNTO"].astype(str)
 pce_clean = pce_df[~pce_df["ID_PUNTO"].isin(pce_remove)]
 
 tce_df["ID_PUNTO"] = tce_df["ID_PUNTO"].astype(str)
-tce_clean = tce_df[~tce_df["ID_PUNTO"].isin(pce_remove)]
+tce_clean = tce_df[~tce_df["ID_PUNTO"].isin(tce_remove)]
 
 tcm_df["ID_PUNTO"] = tcm_df["ID_PUNTO"].astype(str)
-tcm_clean = tcm_df[~tcm_df["ID_PUNTO"].isin(pce_remove)]
+tcm_clean = tcm_df[~tcm_df["ID_PUNTO"].isin(tcm_remove)]
 
 cr6_df["ID_PUNTO"] = cr6_df["ID_PUNTO"].astype(str)
-cr6_clean = cr6_df[~cr6_df["ID_PUNTO"].isin(pce_remove)]
+cr6_clean = cr6_df[~cr6_df["ID_PUNTO"].isin(cr6_remove)]
 
 crTOT_df["ID_PUNTO"] = crTOT_df["ID_PUNTO"].astype(str)
-crtot_clean = crTOT_df[~crTOT_df["ID_PUNTO"].isin(pce_remove)]
+crtot_clean = crTOT_df[~crTOT_df["ID_PUNTO"].isin(crtot_remove)]
 
 print(f"original: {len(pce_df)} after: {len(pce_clean)}, to remove: {pce_remove.size}, actually removed: {len(pce_df)-len(pce_clean)}")
 print(f"original: {len(tce_df)} after: {len(tce_clean)}, to remove: {tce_remove.size}, actually removed: {len(tce_df)-len(tce_clean)}")
