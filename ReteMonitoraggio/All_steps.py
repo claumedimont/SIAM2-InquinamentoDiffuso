@@ -19,14 +19,16 @@ import pandas as pd
 import os
 
 # Load the Excel files
-in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/PerConfronto/Input_files/' 
+in_dir = 'C:/Users/user/OneDrive - Politecnico di Milano/SF2-Inquinamento_diffuso/Elaborazioni/E_AnalisiChimiche/' 
 #acquiferi_df = pd.read_excel(os.path.join(in_dir,'Assegnazione_acquifero_230125.xlsx'), sheet_name="Confronti_classifica")
-acquiferi_df = pd.read_excel(os.path.join(in_dir,'E_Dati_Muggiò_rev1_acquif.xlsx'))
+#acquiferi_df = pd.read_excel(os.path.join(in_dir,'E_Dati_Muggiò_rev1_acquif.xlsx'))
 #idrochimica_df = pd.read_excel(os.path.join(in_dir,'idrochimica_tutti_step6_SL_31102024.xlsx'))
-idrochimica_df = pd.read_excel(os.path.join(in_dir,'E_Dati_Muggiò_rev1.xlsx'), sheet_name="DATI_MUGGIO")   # has been modified for MUGGIO data!
+#idrochimica_df = pd.read_excel(os.path.join(in_dir,'E_Dati_Muggiò_rev1.xlsx'), sheet_name="DATI_MUGGIO")   # has been modified for MUGGIO data!
 #anagrafica_df = pd.read_excel(os.path.join(in_dir, 'Anagarafiche_aggregate_tutti_SL_100125.xlsx'))
-anagrafica_df = pd.read_excel(os.path.join(in_dir,'E_Dati_Muggiò_rev1.xlsx'), sheet_name="anagrafica")
+#anagrafica_df = pd.read_excel(os.path.join(in_dir,'E_Dati_Muggiò_rev1.xlsx'), sheet_name="anagrafica")
 
+punti_df = pd.read_csv(os.path.join(in_dir, "Mediane_2019-2023_DEF/CHECK/check_pozzi_BC.csv"))
+idrochimica_df = pd.read_excel(os.path.join(in_dir,'idrochimica_DEF_090725.xlsx'))
 
 # %%
 # 1. COMPARE COORDS BETWEEN 'ANAGRAFICA' AND 'ASSEGNAZIONE ACQUIFERO'
@@ -107,13 +109,14 @@ period2 = range(2019, 2023)
 # merged_df = merged_df.drop(['X', 'Y'], axis=1)
 #fixing possible sources of error during merge
 #setting as string
-merged_df['ID_PUNTO'] = merged_df['ID_PUNTO'].astype(str)
+punti_df['ID_PUNTO'] = punti_df['ID_PUNTO'].astype(str)
 #deleting white spaces
-merged_df['ID_PUNTO'] = merged_df['ID_PUNTO'].str.strip() 
+punti_df['ID_PUNTO'] = punti_df['ID_PUNTO'].str.strip() 
 
+# %%
 # selection df3
 sel_df3 = df3[['ID_PUNTO','FONTE']]
-merged_df = pd.merge(merged_df, sel_df3, on="ID_PUNTO", how='left')
+merged_df = pd.merge(punti_df, sel_df3, on="ID_PUNTO", how='left')
 merged_df = merged_df.drop_duplicates()
 
 # Process the data to calculate medians for each parameter and period
@@ -147,7 +150,7 @@ for param in parameters:
     final_meds = pd.merge(merged_df, median_2019_2023, on='ID_PUNTO', how='left')
 
     # Save the result to a file for the current parameter
-    final_meds.to_excel(os.path.join(in_dir,f'Muggio_{param}_Mediane2019-2023.xlsx'), index=False)
+    final_meds.to_excel(os.path.join(in_dir, "Mediane_2019-2023_DEF/CHECK", f'Check_BC_{param}_Mediane2019-2023.xlsx'), index=False)
 
     # Print confirmation
     print(f"Saved results for {param} to {median_2019_2023}")
